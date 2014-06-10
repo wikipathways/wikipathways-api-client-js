@@ -1,5 +1,5 @@
 var http = require('http')
-  , Gpml = require('../gpml2json/gpml.js')
+  , Gpml = require('gpml2json')
   , Cheerio = require('cheerio')
   ;
 
