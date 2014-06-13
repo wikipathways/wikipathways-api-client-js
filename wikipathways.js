@@ -67,7 +67,7 @@ module.exports = {
       /*
       var options = {
         host: 'www.wikipathways.org',
-        path: '/wpi/wpi.php?action=downloadFile&type=gpml&pwTitle=Pathway:' + pathwayId,
+        path: '/wpi/wpi.php?action=downloadFile&type=gpml&pwTitle=Pathway:' + wikipathwaysId,
         port: '80',
         //This is the only line that is new. `headers` is an object with the headers to request
         headers: {'custom': 'Custom Header Demo works'}
@@ -114,7 +114,7 @@ module.exports = {
   },
 
   getPathway: function(args, callback) {
-    var pathwayId = args.id;
+    var wikipathwaysId = args.id;
     var requestedFileFormat = args.fileFormat || 'application/ld+json';
     var idVersion = args.idVersion || 0;
 
@@ -128,25 +128,27 @@ module.exports = {
 
     if (!!mediaType) {
       if (mediaType === 'application/ld+json') {
-        // json not currently available, so we need to request GPML and convert to json
-        url = urlStub1 + 'gpml' + urlStub2 + pathwayId;
+        url = urlStub1 + 'gpml' + urlStub2 + wikipathwaysId;
         request({
           url: url,
           mediaType: 'application/gpml+xml'
+          // json not currently available, so we need to request GPML and convert to json
+          // when json becomes available, we can just use the line below
           //mediaType: mediaType
         }, function(err, xmlSelection) {
           var pathwayMetadata = {};
           pathwayMetadata.idVersion = idVersion;
           pathwayMetadata.dbName = 'wikipathways';
-          pathwayMetadata.dbId = pathwayId;
+          pathwayMetadata.dbId = wikipathwaysId;
 
           var pvjson = Gpml.toPvjson(xmlSelection, pathwayMetadata, function(err, pvjson) {
             callback(null, pvjson);
           });
         });
       } else {
+        // the current WikiPathways API does not use content type negotiation, so we need to convert the media type to the string that the current API uses.
         var wikipathwaysApiFileFormat = mediaTypeToWikipathwaysApiFileFormatMappings[mediaType];
-        url = urlStub1 + wikipathwaysApiFileFormat + urlStub2 + pathwayId;
+        url = urlStub1 + wikipathwaysApiFileFormat + urlStub2 + wikipathwaysId;
         if (mediaType === 'application/biopax+xml' || mediaType === 'application/gpml+xml' || mediaType === 'text/genelist' || mediaType === 'text/pwf') {
           request({
             url: url
@@ -154,6 +156,7 @@ module.exports = {
             callback(err, str);
           });
         } else {
+          // we can't return a PNG image or a PDF, but we can return the URL to it
           callback(null, url);
         }
       }
