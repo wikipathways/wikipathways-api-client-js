@@ -68,8 +68,6 @@ var mediaTypeToJqueryDataTypeMappings = {
 
 module.exports = {
   request: function(args, callback) {
-    console.log('mediaTypeToJqueryDataTypeMappings');
-    console.log(mediaTypeToJqueryDataTypeMappings);
     var url = args.url;
     var mediaType = args.mediaType;
 
@@ -130,7 +128,6 @@ module.exports = {
     var idVersion = args.idVersion || 0;
 
     var mediaType = pathwayRequestedFileFormatToMediaTypeMappings[requestedFileFormat.toLowerCase()];
-    console.log();
 
     var request = this.request;
     var urlStub1 = 'http://www.wikipathways.org/wpi/wpi.php?action=downloadFile&type=';
@@ -194,14 +191,24 @@ module.exports = {
           //mediaType: mediaType
         }, function(err, xmlSelection) {
           var json = [];
+          json['@context'] = [
+            'http://test2.wikipathways.org/v2/contexts/biopax.jsonld',
+            'http://test2.wikipathways.org/v2/contexts/organism.jsonld',
+            {
+              '@vocab': 'http://www.biopax.org/release/biopax-level3.owl#'
+            }
+          ];
           //xmlBiopaxSelection.find('bp\\:PublicationXref').each(function() {
           xmlSelection('ns1\\:pathways').each(function() {
             var pathway = {};
             var xmlPathwaySelection = $( this );
-            pathway.id = xmlPathwaySelection.find('ns2\\:id').text();
+            var wikipathwaysId = xmlPathwaySelection.find('ns2\\:id').text();
+            pathway['@id'] = 'http://identifiers.org/wikipathways/' + wikipathwaysId;
             pathway.name = xmlPathwaySelection.find('ns2\\:name').text();
-            pathway.species = xmlPathwaySelection.find('ns2\\:species').text();
-            pathway.revision = xmlPathwaySelection.find('ns2\\:revision').text();
+            pathway.db = 'wikipathways';
+            pathway.id = wikipathwaysId;
+            pathway.organism = xmlPathwaySelection.find('ns2\\:species').text();
+            pathway.idVersion = xmlPathwaySelection.find('ns2\\:revision').text();
             json.push(pathway);
           });
           callback(null, json);
