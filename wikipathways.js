@@ -3,8 +3,17 @@ var http = require('http')
   , Cheerio = require('cheerio')
   ;
 
-// convert potential requested value to file format name we will use internally
-var requestedFileFormatToMediaTypeMappings = {
+// convert potential file format request value to standardized media type
+var genericRequestedFileFormatToMediaTypeMappings = {
+  'xml':'application/xml',
+  'application/ld+json':'application/ld+json',
+  'application/json':'application/ld+json',
+  'json':'application/ld+json',
+  'jsonld':'application/ld+json'
+};
+
+// convert potential file format request value to standardized media type for pathway data
+var pathwayRequestedFileFormatToMediaTypeMappings = {
   'application/biopax+xml':'application/biopax+xml',
   'application/rdf+xml':'application/biopax+xml',
   'biopax':'application/biopax+xml',
@@ -15,6 +24,7 @@ var requestedFileFormatToMediaTypeMappings = {
   'xml':'application/gpml+xml',
   'application/xml':'application/gpml+xml',
   'application/ld+json':'application/ld+json',
+  'application/json':'application/ld+json',
   'json':'application/ld+json',
   'jsonld':'application/ld+json',
   'pvjson':'application/ld+json',
@@ -35,7 +45,7 @@ var requestedFileFormatToMediaTypeMappings = {
 };
 
 // convert from standardized format (as specified above) to the format used by the current (2014-06-09) WikiPathways REST API
-var mediaTypeToWikipathwaysApiFileFormatMappings = {
+var pathwayMediaTypeToWikipathwaysApiFileFormatMappings = {
   'application/biopax+xml':'owl',
   'application/gpml+xml':'gpml',
   'application/ld+json':'json',
@@ -49,6 +59,7 @@ var mediaTypeToWikipathwaysApiFileFormatMappings = {
 // convert from standardized format (as specified above) to the format used in the jQuery ajax dataType setting
 var mediaTypeToJqueryDataTypeMappings = {
   'application/biopax+xml':'xml',
+  'application/xml':'xml',
   'application/gpml+xml':'xml',
   'application/ld+json':'json',
   'text/genelist':'text',
@@ -118,7 +129,7 @@ module.exports = {
     var requestedFileFormat = args.fileFormat || 'application/ld+json';
     var idVersion = args.idVersion || 0;
 
-    var mediaType = requestedFileFormatToMediaTypeMappings[requestedFileFormat.toLowerCase()];
+    var mediaType = pathwayRequestedFileFormatToMediaTypeMappings[requestedFileFormat.toLowerCase()];
     console.log();
 
     var request = this.request;
@@ -147,7 +158,7 @@ module.exports = {
         });
       } else {
         // the current WikiPathways API does not use content type negotiation, so we need to convert the media type to the string that the current API uses.
-        var wikipathwaysApiFileFormat = mediaTypeToWikipathwaysApiFileFormatMappings[mediaType];
+        var wikipathwaysApiFileFormat = pathwayMediaTypeToWikipathwaysApiFileFormatMappings[mediaType];
         url = urlStub1 + wikipathwaysApiFileFormat + urlStub2 + wikipathwaysId;
         if (mediaType === 'application/biopax+xml' || mediaType === 'application/gpml+xml' || mediaType === 'text/genelist' || mediaType === 'text/pwf') {
           request({
@@ -159,6 +170,48 @@ module.exports = {
           // we can't return a PNG image or a PDF, but we can return the URL to it
           callback(null, url);
         }
+      }
+    } else {
+      callback('Requested file format not recognized.');
+    }
+  },
+
+  listPathways: function(args, callback) {
+    var requestedFileFormat = args.fileFormat || 'application/ld+json';
+
+    var mediaType = genericRequestedFileFormatToMediaTypeMappings[requestedFileFormat.toLowerCase()];
+
+    var request = this.request;
+    var url = 'http://www.wikipathways.org/wpi/webservice/webservice.php/listPathways';
+
+    if (!!mediaType) {
+      if (mediaType === 'application/ld+json') {
+        request({
+          url: url,
+          mediaType: 'application/xml'
+          // json not currently available, so we need to request GPML and convert to json
+          // when json becomes available, we can just use the line below
+          //mediaType: mediaType
+        }, function(err, xmlSelection) {
+          var json = [];
+          //xmlBiopaxSelection.find('bp\\:PublicationXref').each(function() {
+          xmlSelection('ns1\\:pathways').each(function() {
+            var pathway = {};
+            var xmlPathwaySelection = $( this );
+            pathway.id = xmlPathwaySelection.find('ns2\\:id').text();
+            pathway.name = xmlPathwaySelection.find('ns2\\:name').text();
+            pathway.species = xmlPathwaySelection.find('ns2\\:species').text();
+            pathway.revision = xmlPathwaySelection.find('ns2\\:revision').text();
+            json.push(pathway);
+          });
+          callback(null, json);
+        });
+      } else {
+        request({
+          url: url
+        }, function(err, str) {
+          callback(err, str);
+        });
       }
     } else {
       callback('Requested file format not recognized.');
