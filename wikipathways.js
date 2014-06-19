@@ -127,6 +127,8 @@ module.exports = {
     var requestedFileFormat = args.fileFormat || 'application/ld+json';
     var idVersion = args.idVersion || 0;
 
+    console.log('Fetching ' + wikipathwaysId + '...');
+
     var mediaType = pathwayRequestedFileFormatToMediaTypeMappings[requestedFileFormat.toLowerCase()];
 
     var request = this.request;
