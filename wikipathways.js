@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 var http = require('http')
-  //, Gpml = require('gpml2json')
-  , Gpml = require('../gpml2json/src/gpml')
+  , Gpml = require('gpml2json')
+  //, Gpml = require('../gpml2json/src/gpml')
   , Cheerio = require('cheerio')
   , fs = require('fs')
   ;
@@ -314,9 +314,9 @@ var http = require('http')
 
      program
        .command('*')
-       .description('deploy the given env')
+       .description('No command specified.')
        .action(function(env){
-         console.log('deploying "%s"', env);
+         console.log('No command specified for "%s"', env);
        });
 
       program.parse(process.argv);
