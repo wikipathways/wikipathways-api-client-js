@@ -4,7 +4,6 @@ var http = require('http')
   //, Gpml = require('gpml2json')
   , Gpml = require('../gpml2json/src/gpml')
   , Cheerio = require('cheerio')
-  , program = require('commander')
   , fs = require('fs')
   ;
 
@@ -166,11 +165,12 @@ var http = require('http')
       var request = this.request;
       var urlStub1 = 'http://www.wikipathways.org/wpi/wpi.php?action=downloadFile&type=';
       var urlStub2 = '&pwTitle=Pathway:';
+      var urlStub3 = '&oldid=';
       var url;
 
       if (!!mediaType) {
         if (mediaType === 'application/ld+json') {
-          url = urlStub1 + 'gpml' + urlStub2 + wikipathwaysId;
+          url = urlStub1 + 'gpml' + urlStub2 + wikipathwaysId + urlStub3 + idVersion;
           request({
             url: url,
             mediaType: 'application/gpml+xml'
@@ -190,7 +190,7 @@ var http = require('http')
         } else {
           // the current WikiPathways API does not use content type negotiation, so we need to convert the media type to the string that the current API uses.
           var wikipathwaysApiFileFormat = pathwayMediaTypeToWikipathwaysApiFileFormatMappings[mediaType];
-          url = urlStub1 + wikipathwaysApiFileFormat + urlStub2 + wikipathwaysId;
+          url = urlStub1 + wikipathwaysApiFileFormat + urlStub2 + wikipathwaysId + urlStub3 + idVersion;
           if (mediaType === 'application/biopax+xml' || mediaType === 'application/gpml+xml' || mediaType === 'text/genelist' || mediaType === 'text/pwf') {
             request({
               url: url
@@ -259,13 +259,81 @@ var http = require('http')
       }
     }
   };
+
+  function enableCommandLine(Wikipathways) {
+    function list(val) {
+      return val.split(',');
+    }
+
+    var program = require('commander');
+    var npmPackage = JSON.parse(fs.readFileSync('./package.json', {encoding: 'utf8'}));
+    program
+      .version(npmPackage.version)
+      // TODO handle different types, e.g., curated, featured, etc.
+      //.option('-i, --get-pathway <items>', 'Get pathway by wikpathways-id[,version]', list)
+      .option('-l, --list-pathways [type]', 'List pathways available at WikiPathways [all]')
+      .option('-v, --version-id [version id]', 'Get pathway version [version id]', 0)
+      .option('-f, --format [type]', 'Media type (file format, content type) [\'application/ld+json\',\'application/gpml+xml\',\'application/biopax+xml\',\'text/genelist\',\'text/pwf\']', 'application/ld+json');
+
+      /*
+    program
+       .command('setup')
+       .description('run remote setup commands')
+       .action(function(){
+         console.log('setup');
+       });
+     //*/
+
+     program
+       .command('get-pathway <wikpathways-id>')
+       .description('Get pathway by WikiPathways ID.')
+       .action(function(wikipathwaysId){
+          var idVersion = program.versionId || 0;
+          console.log('Getting pathway(s) %s', wikipathwaysId);
+          console.log('  version: %s', idVersion || '0 (e.g., latest)');
+          console.log('  file format: %s', program.format);
+
+          Wikipathways.getPathway({
+            id: wikipathwaysId,
+            requestedFileFormat: program.format,
+            idVersion: idVersion
+          },
+          function(err, pathway) {
+            if (err) {
+              console.log(err);
+              process.exit(1);
+            }
+            if (program.format === 'application/ld+json') {
+              console.log(JSON.stringify(pathway, null, '\t'));
+            } else {
+              console.log(pathway);
+            }
+            process.exit(0);
+          });
+       });
+
+     program
+       .command('*')
+       .description('deploy the given env')
+       .action(function(env){
+         console.log('deploying "%s"', env);
+       });
+
+      program.parse(process.argv);
+
+    if (program.listPathways) {
+      console.log('List of pathways of type %s', program.listPathways);
+    }
+  }
+
   // Export the Wikipathways object for **Node.js**, with
-  // backwards-compatibility for the old `require()` API. If we're in
-  // the browser, add `Wikipathways` as a global object via a string identifier,
-  // for Closure Compiler "advanced" mode.
+  // backwards-compatibility for the old `require()` API.
+  // If we're in the browser, add `Wikipathways` as a global
+  // object via a string identifier, for Closure Compiler "advanced" mode.
   if (typeof exports !== 'undefined') {
     if (typeof module !== 'undefined' && module.exports) {
       exports = module.exports = Wikipathways;
+      enableCommandLine(Wikipathways);
     }
     exports.Wikipathways = Wikipathways;
   } else {
@@ -273,44 +341,4 @@ var http = require('http')
   }
 })();
 
-// enable command line
 
-function list(val) {
-  return val.split(',');
-}
-
-var npmPackage = JSON.parse(fs.readFileSync('./package.json', {encoding: 'utf8'}));
-program
-  .version(npmPackage.version)
-  // TODO handle different types, e.g., curated, featured, etc.
-  .option('-i, --get-pathway <items>', 'Get pathway by wikpathways-id[,version]', list)
-  .option('-l, --list-pathways [type]', 'List pathways available at WikiPathways [all]')
-  .option('-f, --format [type]', 'Media type (file format, content type) [\'application/ld+json\',\'application/gpml+xml\',\'application/biopax+xml\',\'text/genelist\',\'text/pwf\']', 'application/ld+json')
-  .parse(process.argv);
-
-if (program.listPathways) {
-  console.log('List of pathways of type %s', program.listPathways);
-}
-if (program.getPathway) {
-  var idVersion = program.getPathway[1] || 0;
-  console.log(program.getPathway);
-  console.log('Getting pathway(s) %s', program.getPathway);
-  console.log('  version: %s', idVersion || '0 (e.g., latest)');
-  console.log('  file format: %s', program.format);
-
-  exports.Wikipathways.getPathway({
-  //Wikipathways.getPathway({
-    id: program.getPathway[0],
-    requestedFileFormat: program.format,
-    idVersion: idVersion
-  },
-  function(err, pathway) {
-    if (err) {
-      console.log(err);
-      process.exit(1);
-    }
-    console.log('pathway ' + JSON.stringify(pathway, null, '\t'));
-    //console.log(pathway);
-    process.exit(0);
-  });
-}
