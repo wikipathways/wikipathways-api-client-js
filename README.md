@@ -1,4 +1,4 @@
 wikipathwaysjs
 ==============
 
-JS client for WikiPathways.org API
+JS client for WikiPathways.org web services API
