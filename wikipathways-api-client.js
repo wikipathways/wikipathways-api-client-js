@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+// #!/usr/bin/env node
 
 var http = require('http');
 var Gpml = require('gpml2json');
@@ -349,7 +349,12 @@ var querystring = require('querystring');
 
       // An object of options to indicate where to post to
       var postOptions = {
-        url: baseIri + 'updatePathway',
+        // TODO http doesn't appear to accept a plain 'url'
+        // parameter. Update this to use the baseIri
+        //url: baseIri + 'updatePathway',
+        host: 'webservice.wikipathways.org',
+        port: '80',
+        path: '/updatePathway',
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -475,7 +480,9 @@ var querystring = require('querystring');
   if (typeof exports !== 'undefined') {
     if (typeof module !== 'undefined' && module.exports) {
       exports = module.exports = WikipathwaysApiClient;
-      enableCommandLine(WikipathwaysApiClient);
+      if (!window && !document) {
+        enableCommandLine(WikipathwaysApiClient);
+      }
     }
     exports.WikipathwaysApiClient = WikipathwaysApiClient;
   } else {
