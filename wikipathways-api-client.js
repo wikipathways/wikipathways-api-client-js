@@ -322,7 +322,9 @@ var querystring = require('querystring');
 
     updatePathway: function(args, callback) {
       console.log('Updating ' + args.identifier + '...');
-      var updateParams = {};
+      var updateParams = {
+        method: 'updatePathway'
+      };
       if (!!args.identifier) {
         updateParams.pwId = args.identifier;
       }
@@ -352,9 +354,10 @@ var querystring = require('querystring');
         // TODO http doesn't appear to accept a plain 'url'
         // parameter. Update this to use the baseIri
         //url: baseIri + 'updatePathway',
-        host: 'webservice.wikipathways.org',
+        //http://pvjs.wikipathways.org/wpi/webservicetest/index.php?method=updatePathway
+        host: 'pvjs.wikipathways.org',
         port: '80',
-        path: '/updatePathway',
+        path: '/wpi/webservicetest/index.php',
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -364,7 +367,10 @@ var querystring = require('querystring');
 
       // Set up the request
       var postReq = http.request(postOptions, function(res) {
-        res.setEncoding('utf8');
+        if (!!res.setEncoding) {
+          res.setEncoding('utf8');
+        }
+
         res.on('data', function(chunk) {
           // TODO what if there are multiple chunks?
           // We should use something like the res.on
@@ -480,7 +486,7 @@ var querystring = require('querystring');
   if (typeof exports !== 'undefined') {
     if (typeof module !== 'undefined' && module.exports) {
       exports = module.exports = WikipathwaysApiClient;
-      if (!window && !document) {
+      if (typeof window === 'undefined' && typeof document === 'undefined') {
         enableCommandLine(WikipathwaysApiClient);
       }
     }
