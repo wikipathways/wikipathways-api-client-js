@@ -22,8 +22,10 @@
   },
   "homepage": "https://github.com/wikipathways/wikipathways-api-client",
   "dependencies": {
+    "gpml2json": "wikipathways/gpml2json"
+  },
+  "dev-dependencies": {
     "cheerio": "~0.17.0",
-    "gpml2json": "wikipathways/gpml2json",
     "commander": "~2.3.0"
   }
 }
