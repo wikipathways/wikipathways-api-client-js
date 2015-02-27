@@ -1,6 +1,11 @@
 var WikipathwaysApiClient = require('../wikipathways-api-client.js');
 
-WikipathwaysApiClient.getPathway({
+var wikipathwaysApiClientInstance = new WikipathwaysApiClient({
+  //baseIri: 'http://webservice.wikipathways.org/'
+  baseIri: 'http://pvjs.wikipathways.org/wpi/webservicetest/'
+});
+
+wikipathwaysApiClientInstance.getPathway({
     identifier: 'WP4',
     version: '0',
     fileFormat: 'application/gpml+xml'

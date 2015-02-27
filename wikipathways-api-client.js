@@ -5,38 +5,37 @@ var Gpml = require('gpml2json');
 //var Gpml = require('../gpml2json/src/gpml');
 var Cheerio = require('cheerio');
 var fs = require('fs');
+var highland = require('highland');
+var JSONStream = require('JSONStream');
 // We need this to build our post string
 var querystring = require('querystring');
+var request = require('request');
 
 // architecture/exporting based on underscore.js code
-(function() {
+function WikipathwaysApiClient(args) {
 
-  // Establish the root object, `window` in the browser, or `global` on the server.
-  var root = this;
-  var isBrowser = false;
+  var baseIri;
+  var isBrowserVisitingWikipathwaysTestServer;
 
-  // detect environment: browser vs. Node.js
-  // I would prefer to use the code from underscore.js or
-  // lodash.js, but it doesn't appear to work for me,
-  // possibly because I'm using browserify.js and want to
-  // detect browser vs. Node.js, whereas
-  // the other libraries are just trying to detect whether
-  // we're in CommonJS or not.
   if (typeof window !== 'undefined' && typeof document !== 'undefined') {
-    isBrowser = true;
+    var hostnameSplit = window.location.hostname.split('wikipathways.org');
+    if (hostnameSplit[0] !== '' &&
+        hostnameSplit[0] !== 'www.' &&
+        hostnameSplit[hostnameSplit.length - 1] === '') {
+      isBrowserVisitingWikipathwaysTestServer = true;
+    }
   }
 
-  // Create a safe reference to the WikipathwaysApiClient object for use below.
-  var WikipathwaysApiClient = function(obj) {
-    if (obj instanceof WikipathwaysApiClient) {
-      return obj;
-    }
-    if (!(this instanceof WikipathwaysApiClient)) {
-      return new WikipathwaysApiClient(obj);
-    }
-  };
+  if (!!args.baseIri) {
+    baseIri = args.baseIri;
+  } else if (isBrowserVisitingWikipathwaysTestServer) {
+    baseIri = window.location.host + '/wpi/webservicetest/';
+  } else {
+    baseIri = 'http://webservice.wikipathways.org/';
+  }
 
-  var baseIri = 'http://webservice.wikipathways.org/';
+  console.log('baseIri');
+  console.log(baseIri);
 
   // convert potential file format request value to standardized media type
   var genericRequestedFileFormatToMediaTypeMappings = {
@@ -105,7 +104,7 @@ var querystring = require('querystring');
     'text/pwf':'text'
   };
 
-  WikipathwaysApiClient = {
+  return {
     request: function(args, callback) {
       var url = args.url;
       var mediaType = args.mediaType;
@@ -114,7 +113,8 @@ var querystring = require('querystring');
         /*
         var options = {
           host: 'www.wikipathways.org',
-          path: '/wpi/wpi.php?action=downloadFile&type=gpml&pwTitle=Pathway:' + wikipathwaysIdentifier,
+          path: '/wpi/wpi.php?action=downloadFile&type=gpml&pwTitle=Pathway:' +
+              wikipathwaysIdentifier,
           port: '80',
           //This is the only line that is new. `headers` is an object with the headers to request
           headers: {'custom': 'Custom Header Demo works'}
@@ -262,69 +262,65 @@ var querystring = require('querystring');
       }
     },
 
-    listPathways: function(args, callback) {
+    listPathways: function(args) {
+      args = args || {};
+
+      var requestArgs = {
+        qs: {},
+        withCredentials: false
+      };
+
+      requestArgs.url = baseIri + 'listPathways';
+
       var requestedFileFormat = args.fileFormat || 'application/ld+json';
 
       var mediaType = genericRequestedFileFormatToMediaTypeMappings[
           requestedFileFormat.toLowerCase()];
 
-      var request = this.request;
-      var url = 'http://www.wikipathways.org/wpi/' +
-          'webservice/webservice.php/listPathways';
-
-      if (!!mediaType) {
-        if (mediaType === 'application/ld+json') {
-          request({
-            url: url,
-            mediaType: 'application/xml'
-            // json not currently available, so we need to request GPML and convert to json
-            // when json becomes available, we can just use the line below
-            //mediaType: mediaType
-          }, function(err, xmlSelection) {
-            var json = [];
-            json['@context'] = [
-              'https://wikipathwayscontexts.firebaseio.com/biopax.json',
-              'https://wikipathwayscontexts.firebaseio.com/organism.json',
-              {
-                '@vocab': 'http://www.biopax.org/release/biopax-level3.owl#'
-              }
-            ];
-            //xmlBiopaxSelection.find('bp\\:PublicationXref').each(function() {
-            $(xmlSelection).find('ns1\\:pathways').each(function() {
-              var pathway = {};
-              var xmlPathwaySelection = $(this);
-              var wikipathwaysIdentifier = xmlPathwaySelection.find(
-                  'ns2\\:id').text();
-              pathway['@id'] = 'http://identifiers.org/wikipathways/' +
-                  wikipathwaysIdentifier;
-              pathway.name = xmlPathwaySelection.find('ns2\\:name').text();
-              pathway.db = 'wikipathways';
-              pathway.id = wikipathwaysIdentifier;
-              pathway.organism = xmlPathwaySelection.find(
-                  'ns2\\:species').text();
-              pathway.version = xmlPathwaySelection.find(
-                  'ns2\\:revision').text();
-              json.push(pathway);
-            });
-            callback(null, json);
-          });
-        } else {
-          request({
-            url: url
-          }, function(err, str) {
-            callback(err, str);
-          });
-        }
+      if (mediaType === 'application/ld+json' ||
+            mediaType === 'application/json') {
+        requestArgs.qs.format = 'json';
       } else {
-        callback('Requested file format not recognized.');
+        throw new Error('Requested file format not recognized or not available.');
       }
+
+      return highland(request(requestArgs))
+      .through(JSONStream.parse('pathways.*'))
+      .map(function(data) {
+        var pathway = {
+          '@context': [
+            'https://wikipathwayscontexts.firebaseio.com/biopax.json',
+            'https://wikipathwayscontexts.firebaseio.com/organism.json',
+            {
+              '@vocab': 'http://www.biopax.org/release/biopax-level3.owl#'
+            }
+          ],
+          '@id': 'http://identifiers.org/wikipathways/' + data.id,
+          db: 'wikipathways',
+          identifier: data.id,
+          name: data.name,
+          webPage: data.url,
+          version: data.revision,
+          organism: data.species
+        };
+
+        return pathway;
+      });
     },
 
-    updatePathway: function(args, callback) {
+    updatePathway: function(args) {
+      args = args || {};
+
       console.log('Updating ' + args.identifier + '...');
-      var updateParams = {
-        method: 'updatePathway'
+
+      var requestArgs = {
+        qs: {},
+        withCredentials: false
       };
+
+      requestArgs.url = baseIri + 'updatePathway';
+
+      var updateParams = requestArgs.qs;
       if (!!args.identifier) {
         updateParams.pwId = args.identifier;
       }
@@ -344,154 +340,137 @@ var querystring = require('querystring');
         }
       }
 
-      // thanks to
-      // http://stackoverflow.com/questions/6158933/how-to-make-an-http-post-request-in-node-js
-      // Build the post string from an object
-      var postData = querystring.stringify(updateParams);
-
-      // An object of options to indicate where to post to
-      var postOptions = {
-        // TODO http doesn't appear to accept a plain 'url'
-        // parameter. Update this to use the baseIri
-        //url: baseIri + 'updatePathway',
-        //http://pvjs.wikipathways.org/wpi/webservicetest/index.php?method=updatePathway
-        host: 'pvjs.wikipathways.org',
-        port: '80',
-        path: '/wpi/webservicetest/index.php',
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Content-Length': postData.length
+      //request.post(requestArgs, function(err, response) {
+      request.put(requestArgs, function(err, response) {
+        console.log('err');
+        console.log(err);
+        if (!!response) {
+          console.log('response.body');
+          console.log(response.body);
         }
-      };
-
-      // Set up the request
-      var postReq = http.request(postOptions, function(res) {
-        if (!!res.setEncoding) {
-          res.setEncoding('utf8');
-        }
-
-        res.on('data', function(chunk) {
-          // TODO what if there are multiple chunks?
-          // We should use something like the res.on
-          // end below.
-          return callback(null, chunk);
-        });
-        /* TODO this doesn't work
-        res.on('end', function(response) {
-          console.log('Response: ' + response);
-          return callback(null, response);
-        });
-        //*/
       });
-
-      // post the data
-      postReq.write(postData);
-      postReq.end();
     }
-
   };
 
-  function enableCommandLine(WikipathwaysApiClient) {
-    function list(val) {
-      return val.split(',');
-    }
+}
 
-    var program = require('commander');
-    var npmPackage = JSON.parse(fs.readFileSync(
-          __dirname + '/package.json', {encoding: 'utf8'}));
-    program
-      .version(npmPackage.version)
-      // TODO handle different types, e.g., curated, featured, etc.
-      /*
-      .option('-i, --get-pathway <items>',
-        'Get pathway by wikpathways-id[,version]', list)
-      //*/
-      .option('-v, --version [version]',
-          'Get pathway version [version]', 0)
-      .option('-f, --format [type]',
-          'Media type (file format, content type) [\'application/ld+json\',' +
-              '\'application/gpml+xml\',\'application/vnd.biopax.rdf+xml\',' +
-              '\'text/genelist\',\'text/pwf\']',
-          'application/ld+json');
+function enableCommandLine(WikipathwaysApiClient) {
+  function list(val) {
+    return val.split(',');
+  }
 
-    program
-       .command('list')
-       .description('Get list of pathways available at WikiPathways.')
-       .action(function() {
-         console.log('Getting list of pathways...');
-         WikipathwaysApiClient.listPathways({
-           fileFormat: program.format
-         },
-         function(err, pathwayList) {
-           if (err) {
-             console.log(err);
-             process.exit(1);
-           }
-           if (program.format === 'application/ld+json') {
-             console.log(JSON.stringify(pathwayList, null, '\t'));
-           } else {
-             console.log(pathwayList);
-           }
-           process.exit(0);
-         });
+  var program = require('commander');
+  var npmPackage = JSON.parse(fs.readFileSync(
+        __dirname + '/package.json', {encoding: 'utf8'}));
+  program
+    .version(npmPackage.version)
+    // TODO handle different types, e.g., curated, featured, etc.
+    /*
+    .option('-i, --get-pathway <items>',
+      'Get pathway by wikpathways-id[,version]', list)
+    //*/
+    .option('-v, --version [version]',
+        'Get pathway version [version]', 0)
+    .option('-f, --format [type]',
+        'Media type (file format, content type) [\'application/ld+json\',' +
+            '\'application/gpml+xml\',\'application/vnd.biopax.rdf+xml\',' +
+            '\'text/genelist\',\'text/pwf\']',
+        'application/ld+json');
+
+  program
+     .command('list')
+     .description('Get list of pathways available at WikiPathways.')
+     .action(function() {
+       console.log('Getting list of pathways...');
+       WikipathwaysApiClient.listPathways({
+         fileFormat: program.format
+       },
+       function(err, pathwayList) {
+         if (err) {
+           console.log(err);
+           process.exit(1);
+         }
+         if (program.format === 'application/ld+json') {
+           console.log(JSON.stringify(pathwayList, null, '\t'));
+         } else {
+           console.log(pathwayList);
+         }
+         process.exit(0);
        });
+     });
 
-    program
-      .command('get-pathway <wikipathways-identifier>')
-      .description('Get pathway by WikiPathways Identifier.')
-      .action(function(identifier) {
-        var version = program.version || 0;
-        console.log('Getting pathway(s) %s', identifier);
-        console.log('  version: %s', version || '0 (e.g., latest)');
-        console.log('  file format: %s', program.format);
+  program
+    .command('get-pathway <wikipathways-identifier>')
+    .description('Get pathway by WikiPathways Identifier.')
+    .action(function(identifier) {
+      var version = program.version || 0;
+      console.log('Getting pathway(s) %s', identifier);
+      console.log('  version: %s', version || '0 (e.g., latest)');
+      console.log('  file format: %s', program.format);
 
-        WikipathwaysApiClient.getPathway({
-          identifier: identifier,
-          requestedFileFormat: program.format,
-          version: version
-        },
-        function(err, pathway) {
-          if (err) {
-            console.log(err);
-            process.exit(1);
-          }
-          if (program.format === 'application/ld+json') {
-            console.log(JSON.stringify(pathway, null, '\t'));
-          } else {
-            console.log(pathway);
-          }
-          process.exit(0);
-        });
+      WikipathwaysApiClient.getPathway({
+        identifier: identifier,
+        requestedFileFormat: program.format,
+        version: version
+      },
+      function(err, pathway) {
+        if (err) {
+          console.log(err);
+          process.exit(1);
+        }
+        if (program.format === 'application/ld+json') {
+          console.log(JSON.stringify(pathway, null, '\t'));
+        } else {
+          console.log(pathway);
+        }
+        process.exit(0);
       });
+    });
 
-    program
-      .command('*')
-      .description('No command specified.')
-      .action(function(env) {
-        console.log('No command specified for "%s"', env);
-      });
+  program
+    .command('*')
+    .description('No command specified.')
+    .action(function(env) {
+      console.log('No command specified for "%s"', env);
+    });
 
-    program.parse(process.argv);
+  program.parse(process.argv);
 
-    if (program.listPathways) {
-      console.log('List of pathways of type %s', program.listPathways);
+  if (program.listPathways) {
+    console.log('List of pathways of type %s', program.listPathways);
+  }
+}
+
+// Establish the root object, `window` in the browser, or `global` on the server.
+var root = this;
+
+// Export the WikipathwaysApiClient object for **Node.js**, with
+// backwards-compatibility for the old `require()` API.
+// If we're in the browser, add `WikipathwaysApiClient` as a global
+// object via a string identifier, for Closure Compiler "advanced" mode.
+if (typeof exports !== 'undefined') {
+  if (typeof module !== 'undefined' && module.exports) {
+    exports = module.exports = WikipathwaysApiClient;
+    if (typeof window === 'undefined' && typeof document === 'undefined') {
+      enableCommandLine(WikipathwaysApiClient);
     }
   }
+  exports.WikipathwaysApiClient = WikipathwaysApiClient;
+} else {
+  root.WikipathwaysApiClient = WikipathwaysApiClient;
+}
 
-  // Export the WikipathwaysApiClient object for **Node.js**, with
-  // backwards-compatibility for the old `require()` API.
-  // If we're in the browser, add `WikipathwaysApiClient` as a global
-  // object via a string identifier, for Closure Compiler "advanced" mode.
-  if (typeof exports !== 'undefined') {
-    if (typeof module !== 'undefined' && module.exports) {
-      exports = module.exports = WikipathwaysApiClient;
-      if (typeof window === 'undefined' && typeof document === 'undefined') {
-        enableCommandLine(WikipathwaysApiClient);
-      }
-    }
-    exports.WikipathwaysApiClient = WikipathwaysApiClient;
-  } else {
-    root.WikipathwaysApiClient = WikipathwaysApiClient;
-  }
-})();
+/*
+var isBrowser = false;
+
+// detect environment: browser vs. Node.js
+// I would prefer to use the code from underscore.js or
+// lodash.js, but it doesn't appear to work for me,
+// possibly because I'm using browserify.js and want to
+// detect browser vs. Node.js, whereas
+// the other libraries are just trying to detect whether
+// we're in CommonJS or not.
+if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+  isBrowser = true;
+}
+//*/
