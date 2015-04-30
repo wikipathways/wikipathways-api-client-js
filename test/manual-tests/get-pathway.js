@@ -9,7 +9,19 @@ var wikipathwaysApiClientInstance = WikipathwaysApiClient({
 wikipathwaysApiClientInstance.getPathway({
   identifier: 'WP4',
   fileFormat: 'application/vnd.gpml+xml',
-  //fileFormat: 'application/ld+json',
+  version: 0
+})
+.each(function(pathway) {
+  console.log('**********************************************');
+  console.log('Pathway data for WP4');
+  console.log('**********************************************');
+  console.log(pathway);
+});
+
+/* Doesn't work yet
+wikipathwaysApiClientInstance.getPathway({
+  identifier: 'WP4',
+  fileFormat: 'application/ld+json',
   version: 0
 })
 .each(function(pathway) {
@@ -18,3 +30,4 @@ wikipathwaysApiClientInstance.getPathway({
   console.log('**********************************************');
   console.log(JSON.stringify(pathway, null, '\t'));
 });
+//*/

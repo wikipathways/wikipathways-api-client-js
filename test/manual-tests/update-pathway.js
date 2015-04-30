@@ -9,8 +9,8 @@ var wikipathwaysApiClientInstance = WikipathwaysApiClient({
 
 wikipathwaysApiClientInstance.updatePathway({
   identifier: 'WP4',
-  //version: 0,
-  gpml: fs.readFileSync('../input-data/test.gpml'),
+  version: 79998,
+  gpml: fs.readFileSync('../input-data/test.gpml').toString(),
   description: 'Testing update from wikipathways-api-client-js'
 })
 .each(function(response) {

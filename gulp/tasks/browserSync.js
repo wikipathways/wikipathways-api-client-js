@@ -11,7 +11,7 @@ evt.on('rs', function() {
   console.log('You want to reload BrowserSync!');
 });
 
-gulp.task('browserSync', ['build'], function() {
+gulp.task('browserSync', ['browserify'], function() {
   browserSync.init(['./lib/*.js'], {
 		server: {
 			baseDir: './'
@@ -19,6 +19,6 @@ gulp.task('browserSync', ['build'], function() {
     port: 3000,
     // Don't show any notifications in the browser.
     notify: false,
-    startPath: './test/'
+    //startPath: './test/'
 	});
 });
