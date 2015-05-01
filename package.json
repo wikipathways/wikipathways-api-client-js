@@ -1,6 +1,6 @@
 {
   "name": "wikipathways-api-client",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "JS client for the WikiPathways.org webservices API",
   "main": "wikipathways-api-client.js",
   "scripts": {
@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/wikipathways/wikipathways-api-client"
+    "url": "https://github.com/wikipathways/wikipathways-api-client-js"
   },
   "keywords": [
     "wikipathways",
@@ -27,13 +27,13 @@
   "author": "WikiPathways team",
   "license": "Apache 2",
   "bugs": {
-    "url": "https://github.com/wikipathways/wikipathways-api-client/issues"
+    "url": "https://github.com/wikipathways/wikipathways-api-client-js/issues"
   },
-  "homepage": "https://github.com/wikipathways/wikipathways-api-client",
+  "homepage": "https://github.com/wikipathways/wikipathways-api-client-js",
   "dependencies": {
     "JSONStream": "~0.10.0",
     "URIjs": "^1.15.0",
-    "gpml2pvjson": "wikipathways/gpml2pvjson",
+    "gpml2pvjson": "git://github.com/wikipathways/gpml2pvjson-js.git#1.0.0",
     "highland": "~2.4.0",
     "hyperquest": "^1.2.0",
     "lodash": "~3.3.1"
