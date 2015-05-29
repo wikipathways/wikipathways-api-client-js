@@ -6,12 +6,37 @@ var wikipathwaysApiClientInstance = WikipathwaysApiClient({
   baseIri: 'http://webservice.wikipathways.org/'
 });
 
+//*
 wikipathwaysApiClientInstance.listPathways({
   fileFormat: 'application/ld+json'
 })
-.each(function(pathway) {
+.then(function(pathway) {
   console.log('**********************************************');
   console.log('Pathways');
   console.log('**********************************************');
   console.log(JSON.stringify(pathway, null, '\t'));
 });
+//*/
+
+/*
+wikipathwaysApiClientInstance.listPathways({
+  fileFormat: 'application/ld+json'
+}, function(err, pathway) {
+  console.log('**********************************************');
+  console.log('Pathways');
+  console.log('**********************************************');
+  console.log(JSON.stringify(pathway, null, '\t'));
+});
+//*/
+
+/*
+wikipathwaysApiClientInstance.listPathways({
+  fileFormat: 'application/ld+json'
+}, 'observable')
+.subscribe(function(pathway) {
+  console.log('**********************************************');
+  console.log('Pathways');
+  console.log('**********************************************');
+  console.log(JSON.stringify(pathway, null, '\t'));
+});
+//*/

@@ -1,5 +1,3 @@
-var _ = require('lodash');
-var highland = require('highland');
 var fs = require('fs');
 var WikipathwaysApiClient = require('../../index.js');
 
@@ -13,7 +11,7 @@ wikipathwaysApiClientInstance.updatePathway({
   gpml: fs.readFileSync('../input-data/test.gpml').toString(),
   description: 'Testing update from wikipathways-api-client-js'
 })
-.each(function(response) {
+.then(function(response) {
   console.log('response');
   console.log(response);
 });
