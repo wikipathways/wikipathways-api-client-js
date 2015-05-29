@@ -22,15 +22,6 @@ wikipathwaysApiClientInstance.getPathway({
 //*/
 
 /*
-.each(function(pathway) {
-  console.log('**********************************************');
-  console.log('Pathway data for WP4');
-  console.log('**********************************************');
-  console.log(pathway);
-});
-//*/
-
-//*
 highland([{
   identifier: 'WP4',
   fileFormat: 'application/vnd.gpml+xml',
@@ -48,6 +39,29 @@ highland([{
   console.log(pathway);
 });
 //*/
+
+//*
+var args = {
+  identifier: 'WP4',
+  fileFormat: 'application/vnd.gpml+xml',
+  version: 0
+};
+
+var observable = Rx.Observable.return(args);
+
+var observable1 = Rx.Observable.return('hello');
+
+process.stdin
+  .pipe(new wikipathwaysApiClientInstance.PathwayStream())
+  .pipe(process.stdout);
+
+process.stdin.push(JSON.stringify(args));
+//process.stdin.push('why');
+
+//RxNode.writeToStream(value1, process.stdin, 'utf8');
+
+//*/
+
 /* Doesn't work yet
 wikipathwaysApiClientInstance.getPathway({
   identifier: 'WP4',
