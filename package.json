@@ -36,7 +36,8 @@
     "gpml2pvjson": "git://github.com/wikipathways/gpml2pvjson-js.git#1.0.0",
     "hyperquest": "^1.2.0",
     "rx": "^2.5.2",
-    "rx-node": "^1.0.0"
+    "rx-node": "^1.0.0",
+    "workflow-bob": "git://github.com/ariutta/workflow-bob.git"
   },
   "devDependencies": {
     "bdd-with-opts": "~1.0.0",
