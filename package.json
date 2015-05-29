@@ -1,6 +1,6 @@
 {
   "name": "wikipathways-api-client",
-  "version": "0.0.3",
+  "version": "1.0.0",
   "description": "JS client for the WikiPathways.org webservices API",
   "main": "wikipathways-api-client.js",
   "scripts": {
