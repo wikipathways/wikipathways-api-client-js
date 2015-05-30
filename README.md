@@ -11,7 +11,14 @@ To start developing, first install [Node.js](https://nodejs.org/). Then install 
 npm install -g gulp
 ```
 
-Then in this directory, install the dependencies:
+Then download this repo:
+
+```
+git clone git@github.com:wikipathways/wikipathways-api-client-js.git
+cd wikipathways-api-client-js
+```
+
+Then install the dependencies:
 
 ```bash
 npm install

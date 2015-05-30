@@ -1,9 +1,7 @@
 var fs = require('fs');
 var onlyScripts = require('./util/script-filter');
-var localTasks = fs.readdirSync('./gulp/tasks/').filter(onlyScripts);
+var tasks = fs.readdirSync('./gulp/tasks/').filter(onlyScripts);
 
-localTasks.forEach(function(task) {
-  console.log('task in wp');
-  console.log(task);
+tasks.forEach(function(task) {
   require('./tasks/' + task);
 });
