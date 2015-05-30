@@ -1,4 +1,3 @@
-var _ = require('lodash');
 var highland = require('highland');
 var WikipathwaysApiClient = require('../../index.js');
 

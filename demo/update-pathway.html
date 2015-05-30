@@ -2,36 +2,36 @@
 <html>
 
   <head>
-    <link rel="stylesheet" href="style.css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.js"></script>
-    <!-- Update the location of the script to match where you have it on your server -->
-    <script src="../../dist/wikipathways-api-client.1.0.0.min.js"></script>
+    <script src="./lib/wikipathways-api-client/wikipathways-api-client-dev.bundle.js"></script>
   </head>
 
   <body>
     <h1>Update Pathway Test</h1>
-    <textarea id="gpml"></textarea>
-    <a id="update-btn" type="submit" href="#">Submit</a>
+    <p>Paste the GPML for pathway WP4 below and save. This will update it at pvjs.wikipathways.org.</p>
+    <textarea id="gpml" rows="30" style="width: 500px; "></textarea>
+    <br>
+    <button id="update-btn" type="submit" href="#">Save</button>
 
     <script>
+      var wikipathwaysApiClientInstance = new WikipathwaysApiClient({
+        baseIri: 'http://pvjs.wikipathways.org/wpi/webservicetest/'
+      });
+
       $('#update-btn').click(function() {
         var gpml = $('#pathway').val();
+        wikipathwaysApiClientInstance.updatePathway({
+          identifier: 'WP4',
+          version: 0,
+          gpml: gpml,
+          description: 'Testing update from wikipathways-api-client-js'
+        })
+        .then(function(response) {
+          console.log('response');
+          console.log(response);
+        });
       });
 
-      var wikipathwaysApiClientInstance = WikipathwaysApiClient({
-        baseIri: 'http://webservice.wikipathways.org/'
-      });
-
-      wikipathwaysApiClientInstance.updatePathway({
-        identifier: 'WP4',
-        //version: 0,
-        gpml: gpml,
-        description: 'Testing update from wikipathways-api-client-js'
-      })
-      .then(function(response) {
-        console.log('response');
-        console.log(response);
-      });
     </script>
   </body>
 

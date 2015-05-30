@@ -64,6 +64,7 @@
     "gulp-sourcemaps": "^1.5.2",
     "gulp-uglify": "~1.1.0",
     "gulp-util": "~3.0.4",
+    "highland": "^2.5.1",
     "inquirer": "~0.8.0",
     "mocha": "~2.2.1",
     "mockserver": "~1.1.0",
