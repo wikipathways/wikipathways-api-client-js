@@ -23,4 +23,4 @@ You can then compile the code for the browser:
 gulp browserify
 ```
 
-The code for the browser will be located at [./dist/wikipathways-api-client-VERSION.min.js](https://github.com/wikipathways/wikipathways-api-client-js/blob/master/dist/wikipathways-api-client-1.0.0.min.js).
+The code for the browser will be located at [./dist/wikipathways-api-client-VERSION.min.js](https://github.com/wikipathways/wikipathways-api-client-js/blob/master/dist/wikipathways-api-client-1.0.1.min.js).
