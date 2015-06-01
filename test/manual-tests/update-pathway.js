@@ -1,7 +1,7 @@
 var fs = require('fs');
 var WikipathwaysApiClient = require('../../index.js');
 
-var wikipathwaysApiClientInstance = WikipathwaysApiClient({
+var wikipathwaysApiClientInstance = new WikipathwaysApiClient({
   baseIri: 'http://webservice.wikipathways.org/'
 });
 

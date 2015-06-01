@@ -1,6 +1,7 @@
 {
   "name": "wikipathways-api-client",
   "version": "1.0.3",
+  "bin": "./bin/cli.js",
   "description": "JS client for the WikiPathways.org webservices API",
   "main": "wikipathways-api-client.js",
   "scripts": {
@@ -31,13 +32,12 @@
   },
   "homepage": "https://github.com/wikipathways/wikipathways-api-client-js",
   "dependencies": {
-    "JSONStream": "~0.10.0",
-    "URIjs": "^1.15.0",
+    "JSONStream": "~0.10.x",
+    "URIjs": "^1.15.x",
     "gpml2pvjson": "git://github.com/wikipathways/gpml2pvjson-js.git#1.0.0",
-    "hyperquest": "^1.2.0",
-    "rx": "^2.5.2",
-    "rx-node": "^1.0.0",
-    "workflow-bob": "git://github.com/ariutta/workflow-bob.git"
+    "hyperquest": "^1.2.x",
+    "rx": "^2.5.x",
+    "rx-node": "^1.0.x"
   },
   "devDependencies": {
     "bdd-with-opts": "~1.0.0",
@@ -62,7 +62,7 @@
     "gulp-rename": "~1.2.0",
     "gulp-sequence": "~0.3.2",
     "gulp-sourcemaps": "^1.5.2",
-    "gulp-uglify": "~1.1.0",
+    "gulp-uglify": "~1.2.0",
     "gulp-util": "~3.0.4",
     "highland": "^2.5.1",
     "inquirer": "~0.8.0",
@@ -80,6 +80,7 @@
     "vinyl-fs": "~1.0.0",
     "vinyl-source-stream": "~1.1.0",
     "watchify": "^0.10.2",
+    "workflow-bob": "git://github.com/ariutta/workflow-bob.git",
     "wd": "~0.3.11",
     "yargs": "~3.5.3"
   }

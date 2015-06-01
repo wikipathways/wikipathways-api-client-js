@@ -3,11 +3,11 @@ var Rx = require('rx');
 var RxNode = require('rx-node');
 var WikipathwaysApiClient = require('../../index.js');
 
-var wikipathwaysApiClientInstance = WikipathwaysApiClient({
+var wikipathwaysApiClientInstance = new WikipathwaysApiClient({
   baseIri: 'http://webservice.wikipathways.org/'
 });
 
-//*
+/*
 wikipathwaysApiClientInstance.getPathway({
   identifier: 'WP4',
   fileFormat: 'application/vnd.gpml+xml',
@@ -21,13 +21,13 @@ wikipathwaysApiClientInstance.getPathway({
 });
 //*/
 
-/*
+//*
 wikipathwaysApiClientInstance.getPathway({
   identifier: 'WP4',
   fileFormat: 'application/vnd.gpml+xml',
   version: 0
 }, 'observable')
-.forEach(function(pathway) {
+.subscribe(function(pathway) {
   console.log('**********************************************');
   console.log('Pathway data for WP4');
   console.log('**********************************************');
