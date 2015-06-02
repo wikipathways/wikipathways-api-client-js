@@ -59,11 +59,15 @@ program
         return wikipathwaysApiClientInstance.getPathway(args, 'observable');
       })
       .map(function(pathway) {
+        pathwayStringified = pathway;
+        // TODO we can't get JSON-LD yet.
+        /*
         if (program.format === 'application/ld+json') {
           pathwayStringified = JSON.stringify(pathway, null, '\t');
         } else {
           pathwayStringified = pathway;
         }
+        //*/
         return pathwayStringified;
       });
     var disposable = RxNode.writeToStream(pathwayStream, process.stdout, 'utf8');

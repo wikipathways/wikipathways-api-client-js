@@ -7,7 +7,7 @@ var wikipathwaysApiClientInstance = new WikipathwaysApiClient({
   baseIri: 'http://webservice.wikipathways.org/'
 });
 
-/*
+//*
 wikipathwaysApiClientInstance.getPathway({
   identifier: 'WP4',
   fileFormat: 'application/vnd.gpml+xml',
@@ -35,7 +35,7 @@ wikipathwaysApiClientInstance.getPathway({
 });
 //*/
 
-/*
+//*
 wikipathwaysApiClientInstance.getPathway({
   identifier: 'WP4',
   fileFormat: 'application/vnd.gpml+xml',
@@ -48,7 +48,7 @@ wikipathwaysApiClientInstance.getPathway({
 });
 //*/
 
-/*
+//*
 highland([{
   identifier: 'WP4',
   fileFormat: 'application/vnd.gpml+xml',
@@ -79,16 +79,17 @@ process.stdin
 process.stdin.push(JSON.stringify(args));
 //*/
 
-/* Doesn't work yet
+// TODO Just returns xml for now
+//*
 wikipathwaysApiClientInstance.getPathway({
   identifier: 'WP4',
   fileFormat: 'application/ld+json',
   version: 0
-})
-.each(function(pathway) {
+}, 'observable')
+.subscribe(function(pathway) {
   console.log('**********************************************');
   console.log('Pathway data for WP4');
   console.log('**********************************************');
-  console.log(JSON.stringify(pathway, null, '\t'));
+  console.log(pathway);
 });
 //*/

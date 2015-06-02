@@ -9,33 +9,37 @@ var wikipathwaysApiClientInstance = new WikipathwaysApiClient({
 wikipathwaysApiClientInstance.listPathways({
   fileFormat: 'application/ld+json'
 })
-.then(function(pathway) {
+.then(function(pathwayMetadata) {
   console.log('**********************************************');
-  console.log('Pathways');
+  console.log('Pathway Metadata');
   console.log('**********************************************');
-  console.log(JSON.stringify(pathway, null, '\t'));
+  console.log(JSON.stringify(pathwayMetadata, null, '\t'));
 });
 //*/
 
-/*
+//*
 wikipathwaysApiClientInstance.listPathways({
   fileFormat: 'application/ld+json'
-}, function(err, pathway) {
+}, function(err, pathwayMetadata) {
   console.log('**********************************************');
-  console.log('Pathways');
+  console.log('Pathway Metadata');
   console.log('**********************************************');
-  console.log(JSON.stringify(pathway, null, '\t'));
+  console.log(JSON.stringify(pathwayMetadata, null, '\t'));
 });
 //*/
 
-/*
-wikipathwaysApiClientInstance.listPathways({
+//*
+var pathwayMetadataSource = wikipathwaysApiClientInstance.listPathways({
   fileFormat: 'application/ld+json'
-}, 'observable')
-.subscribe(function(pathway) {
+}, 'observable');
+
+pathwayMetadataSource.first().subscribe(function(pathwayMetadata) {
   console.log('**********************************************');
-  console.log('Pathways');
+  console.log('Pathway Metadata');
   console.log('**********************************************');
-  console.log(JSON.stringify(pathway, null, '\t'));
+});
+
+pathwayMetadataSource.subscribe(function(pathwayMetadata) {
+  console.log(JSON.stringify(pathwayMetadata, null, '\t'));
 });
 //*/
