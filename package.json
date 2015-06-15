@@ -38,7 +38,8 @@
     "gpml2pvjson": "git://github.com/wikipathways/gpml2pvjson-js.git#1.0.0",
     "hyperquest": "^1.2.x",
     "rx": "^2.5.x",
-    "rx-node": "^1.0.x"
+    "rx-node": "^1.0.x",
+    "sax": "^1.1.1"
   },
   "devDependencies": {
     "bdd-with-opts": "~1.0.0",
