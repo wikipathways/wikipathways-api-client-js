@@ -5,26 +5,30 @@ JS client for WikiPathways.org web services API. Not all API endpoints are handl
 
 # For Developers
 
-To start developing, first install [Node.js](https://nodejs.org/). Then install gulp globally:
+## To start developing
+
+1. Install [Node.js](https://nodejs.org/)
+
+2. Install gulp globally
 
 ```bash
 npm install -g gulp
 ```
 
-Then download this repo:
+3. Clone (download) this repo
 
-```
+```bash
 git clone git@github.com:wikipathways/wikipathways-api-client-js.git
 cd wikipathways-api-client-js
 ```
 
-Then install the dependencies:
+4. Install the dependencies
 
 ```bash
 npm install
 ```
 
-You can then start the dev environment, which will compile your code on the fly and open and refresh the test home page:
+5. ~~Start the dev environment, which will compile your code on the fly and open and refresh the test home page:~~Not currently working
 
 ```bash
 gulp
