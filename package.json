@@ -32,9 +32,8 @@
   },
   "homepage": "https://github.com/wikipathways/wikipathways-api-client-js",
   "dependencies": {
-    "JSONStream": "~0.10.x",
+    "jsonstream": "~0.10.x",
     "cheerio": "^0.19.0",
-    "gpml2pvjson": "git://github.com/wikipathways/gpml2pvjson-js.git#1.0.3",
     "hyperquest": "^1.2.x",
     "rx": "^2.5.x",
     "rx-node": "^1.0.x",
