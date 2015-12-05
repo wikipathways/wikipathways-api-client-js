@@ -3,7 +3,7 @@ wikipathways-api-client-js
 
 JS client for WikiPathways.org web services API. Not all API endpoints are handled yet, so pull requests are welcome!
 
-# For Developers
+## For Developers
 
 To start developing
 
