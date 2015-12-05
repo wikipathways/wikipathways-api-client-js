@@ -1,4 +1,3 @@
-var highland = require('highland');
 var Rx = require('rx');
 var RxNode = require('rx-node');
 var WikipathwaysApiClient = require('../../index.js');
@@ -41,21 +40,6 @@ wikipathwaysApiClientInstance.getPathway({
   fileFormat: 'application/vnd.gpml+xml',
   version: 0
 }, function(err, pathway) {
-  console.log('**********************************************');
-  console.log('Pathway data for WP4');
-  console.log('**********************************************');
-  console.log(pathway);
-});
-//*/
-
-//*
-highland([{
-  identifier: 'WP4',
-  fileFormat: 'application/vnd.gpml+xml',
-  version: 0
-}])
-.through(wikipathwaysApiClientInstance.PathwayStream)
-.each(function(pathway) {
   console.log('**********************************************');
   console.log('Pathway data for WP4');
   console.log('**********************************************');
