@@ -5,7 +5,7 @@ JS client for WikiPathways.org web services API. Not all API endpoints are handl
 
 # For Developers
 
-## To start developing
+To start developing
 
 * Install [Node.js](https://nodejs.org/)
 
