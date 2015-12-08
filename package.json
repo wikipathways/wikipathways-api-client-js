@@ -14,7 +14,10 @@
     ]
   },
   "browser": {
-    "commander": false
+    "atob": false,
+    "btoa": false,
+    "commander": false,
+    "inquirer": false
   },
   "repository": {
     "type": "git",
@@ -32,9 +35,13 @@
   },
   "homepage": "https://github.com/wikipathways/wikipathways-api-client-js",
   "dependencies": {
+    "atob": "^1.1.2",
     "cheerio": "^0.19.0",
+    "colors": "^1.1.2",
     "hyperquest": "^1.2.x",
+    "inquirer": "^0.11.0",
     "jsonstream": "^1.0.3",
+    "lodash": "^3.10.1",
     "rx": "^2.5.x",
     "rx-node": "^1.0.x",
     "sax": "^1.1.1",
