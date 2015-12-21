@@ -1,3 +1,4 @@
+
 wikipathways-api-client-js
 ==============
 
@@ -27,4 +28,4 @@ npm install
 gulp
 ```
 
-~~The production-ready, minified code for the browser will be located at [./dist/wikipathways-api-client-1.0.9.bundle.min.js](https://github.com/wikipathways/wikipathways-api-client-js/blob/master/dist/wikipathways-api-client-1.0.9.bundle.min.js). The dev bundle will be an unminified version of the latest code.~~
+~~The production-ready, minified code for the browser will be located at [./dist/wikipathways-api-client-1.0.10.bundle.min.js](https://github.com/wikipathways/wikipathways-api-client-js/blob/master/dist/wikipathways-api-client-1.0.10.bundle.min.js). The dev bundle will be an unminified version of the latest code.~~
