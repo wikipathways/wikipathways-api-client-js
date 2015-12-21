@@ -48,7 +48,8 @@
     "urijs": "^1.15.x"
   },
   "devDependencies": {
-    "commander": "~2.3.0"
+    "commander": "~2.3.0",
+    "gulp": "^3.9.0"
   },
   "semverBumper": {
     "jsonFiles": [
