@@ -43,6 +43,8 @@ Then you can include that script and the pre-existing polyfills script in your H
 <script src="./dist/wikipathways-api-client.dev.js"></script>
 ```
 
+See `./test/browser-tests/update-pathway.php` for an example.
+
 <!--
 TODO The instructions below don't currently work. Get them working again.
 * ~~Start the dev environment, which will compile your code on the fly and open and refresh the test home page:~~
