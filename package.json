@@ -48,7 +48,9 @@
     "urijs": "^1.15.x"
   },
   "devDependencies": {
+    "brfs": "^1.4.3",
     "commander": "~2.3.0",
+    "deglobalify": "^0.2.0",
     "gulp": "^3.9.0"
   },
   "semverBumper": {
