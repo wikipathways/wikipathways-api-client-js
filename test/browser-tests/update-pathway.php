@@ -2,8 +2,8 @@
 
   <head>
     <?php echo '<script type="text/javascript">'; ?>
-      <?php echo 'window.wikipathwaysUsername = ' . getUsernameSomehowHere() . ';'; ?>
-      <?php echo 'window.wikipathwaysToken = ' . getTokenSomehowHere() . ';'; ?>
+      <?php echo 'window.wikipathwaysUsername = "' . getUsernameSomehowHere() . '";'; ?>
+      <?php echo 'window.wikipathwaysToken = "' . getTokenSomehowHere() . '";'; ?>
     <?php echo '</script>'; ?>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <script src="../../dist/wikipathways-api-client-polyfills-1.0.5.bundle.min.js"></script>
