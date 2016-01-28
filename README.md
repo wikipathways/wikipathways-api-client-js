@@ -23,7 +23,7 @@ cd wikipathways-api-client-js
 npm install
 ```
 
-To build a browser-ready bundle for dev testing, install browserify:
+To build a stand-alone, browser-ready bundle for dev testing, install browserify:
 ```
 npm install -g browserify
 ```
