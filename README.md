@@ -1,4 +1,3 @@
-
 wikipathways-api-client-js
 ==============
 
@@ -23,9 +22,18 @@ cd wikipathways-api-client-js
 ```bash
 npm install
 ```
-* TODO get this working again; it's not currently working ~~Start the dev environment, which will compile your code on the fly and open and refresh the test home page:~~
+
+To build a browser-ready bundle:
+```
+browserify ./index.js -o ./dist/wikipathways-api-client-js.dev.js
+```
+
+TODO get the item below working again; it's not currently working:
+* ~~Start the dev environment, which will compile your code on the fly and open and refresh the test home page:~~
+<!--
 ```bash
 gulp
 ```
+-->
 
 ~~The production-ready, minified code for the browser will be located at [./dist/wikipathways-api-client-1.0.10.bundle.min.js](https://github.com/wikipathways/wikipathways-api-client-js/blob/master/dist/wikipathways-api-client-1.0.10.bundle.min.js). The dev bundle will be an unminified version of the latest code.~~
