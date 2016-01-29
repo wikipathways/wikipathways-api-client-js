@@ -3,6 +3,8 @@ TESTING
 Note that the JS client has special requirements because it can run on both the backend (Node.js) and the frontend (browser). When run on the backend,  authentication is done the same way as it's done for the other clients, but when running on the frontend, authentication is handled differently from any other client.
 
 ## Backend Testing
+Note that it's not possible to test webservice.wikipathways.org from the staging server. The obvious reason is that there is only one *webservice* subdomain, meaning it's always the production version. There also have been issues with CORS, because calling webservice.wikipathways.org from www.wikipathways.org means origins are not the same.
+
 Run the update pathway test with this command:
 
 ```bash
