@@ -1,12 +1,15 @@
 TESTING
 =======
+Note that the JS client has special requirements because it can run on both the backend (Node.js) and the frontend (browser). When run on the backend,  authentication is done the same way as it's done for the other clients, but when running on the frontend, authentication is handled differently from any other client.
 
+## Backend Testing
 Run the update pathway test with this command:
 
 ```bash
 node ./manual-tests/update-pathway.js
 ```
 
+## Frontend Testing
 To update the files on the staging server, `cd` to the top-level `wikipathways-api-client-js` directory and run this (of course, update `your_username` with the appropriate value):
 
 ```bash
