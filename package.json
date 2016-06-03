@@ -42,8 +42,7 @@
     "inquirer": "^0.11.0",
     "jsonstream": "^1.0.3",
     "lodash": "^3.10.1",
-    "rx": "^2.5.x",
-    "rx-node": "^1.0.x",
+    "rx-extra": "git://github.com/ariutta/rx-extra.git#d8ef18b1af76371f49cf1334cdf24e39bed1dd3d",
     "sax": "^1.1.1",
     "urijs": "^1.15.x"
   },
