@@ -1,76 +1,100 @@
 #!/usr/bin/env node
 
-var colors = require('colors');
-var fs = require('fs');
-var inquirer = require('inquirer');
-var Rx = require('rx');
-var RxNode = require('rx-node');
-var WikipathwaysApiClient = require('../index.js');
+var colors = require("colors");
+var fs = require("fs");
+var ndjson = require("ndjson");
+//var Rx = require("rx-extra");
+var Rx = require("../../rx-extra/main");
+var program = require("commander");
+var npmPackage = JSON.parse(
+  fs.readFileSync(__dirname + "/../package.json", { encoding: "utf8" })
+);
+const { SUPPORTED, WikipathwaysApiClient } = require("../lib/main");
+
 var wikipathwaysApiClientInstance = new WikipathwaysApiClient();
 
 //var defaultMediaType = 'application/ld+json';
-var defaultMediaType = 'application/vnd.gpml+xml';
-var supportedMediaTypes = wikipathwaysApiClientInstance.supportedMediaTypes;
-var supportedMediaTypesString = supportedMediaTypes
-  .map(function(mediaType) {
-    var mediaTypeString = '    \t\t\t\t\t* "' + mediaType + '"';
-    if (mediaType === defaultMediaType) {
-      mediaTypeString = colors.green(mediaTypeString + ' (default)');
-    }
-    return mediaTypeString;
-  })
-  .join('\n');
+var defaultMediaType = "application/vnd.gpml+xml";
+var supportedMediaTypesString = SUPPORTED.map(function(mediaType) {
+  var mediaTypeString = '    \t\t\t\t\t* "' + mediaType + '"';
+  if (mediaType === defaultMediaType) {
+    mediaTypeString = colors.green(mediaTypeString + " (default)");
+  }
+  return mediaTypeString;
+}).join("\n");
 
-var program = require('commander');
-var npmPackage = JSON.parse(fs.readFileSync(
-      __dirname + '/../package.json', {encoding: 'utf8'}));
 program
   // version of this program (NOT a pathway)
   .version(npmPackage.version)
-  .option('-f, --format [string]',
-      'specify media type (file format/content type):\n' + supportedMediaTypesString,
-      defaultMediaType);
+  .option(
+    "-f, --format [string]",
+    "specify media type (file format/content type):\n" +
+      supportedMediaTypesString,
+    defaultMediaType
+  );
 
 program
-  .command('list')
-  .description('Get list of pathways available at WikiPathways.')
+  .command("list")
+  .description("Get list of pathways available at WikiPathways.")
   // TODO optionally limit results to desired pathway collection type(s),
   // e.g., curated, featured, etc.
   //.option('-i, --pathway-type <items>',
   //  'specify pathway type(s)', list)
   .action(function() {
-    var pathwayListSource = wikipathwaysApiClientInstance.listPathways({
-      fileFormat: program.format
-    }, 'observable')
+    var serialize = ndjson.serialize();
+    wikipathwaysApiClientInstance
+      .listPathways()
       .map(function(pathwayMetadata) {
         var pathwayMetadataStringified;
-        if (program.format === 'application/ld+json') {
-          pathwayMetadataStringified = JSON.stringify(pathwayMetadata, null, '\t');
+        if (program.format === "application/ld+json") {
+          pathwayMetadataStringified = JSON.stringify(
+            pathwayMetadata,
+            null,
+            "\t"
+          );
         } else {
           pathwayMetadataStringified = pathwayMetadata;
         }
         return pathwayMetadataStringified;
-      });
-    var disposable = RxNode.writeToStream(pathwayListSource, process.stdout, 'utf8');
+      })
+      .throughNodeStream(serialize)
+      .subscribe(
+        function(output) {
+          process.stdout.write(output);
+        },
+        function(err) {
+          console.error(err);
+          process.exit(1);
+        },
+        function() {
+          process.exit(0);
+        }
+      );
   })
-  .on('--help', function() {
-    console.log('  Example:');
+  .on("--help", function() {
+    console.log("  Example:");
     console.log();
-    console.log('    $ ./bin/cli.js list');
+    console.log("    $ ./bin/cli.js list");
     console.log();
   });
 
 program
-  .command('get-pathway <wikipathways-identifier(s)>')
-  .description('Get pathway by WikiPathways identifier(s). ' +
-               'If requesting multiple pathways, separate identifiers by commas, e.g., WP4,WP5')
-  .option('-v, --pathway-version [number]',
-      'specify pathway version [pathway-version]', 0)
+  .command("get-pathway <wikipathways-identifier(s)>")
+  .description(
+    "Get pathway by WikiPathways identifier(s). " +
+      "If requesting multiple pathways, separate identifiers by commas, e.g., WP4,WP5"
+  )
+  .option(
+    "-v, --pathway-version [number]",
+    "specify pathway version [pathway-version]",
+    0
+  )
   .action(function(identifiers, options) {
     var fileFormat = program.fileFormat || defaultMediaType;
     var pathwayVersion = options.pathwayVersion || 0;
 
-    var pathwaySource = Rx.Observable.from(identifiers.split(','))
+    Rx.Observable
+      .from(identifiers.split(","))
       .map(function(identifier) {
         return {
           identifier: identifier,
@@ -79,66 +103,130 @@ program
         };
       })
       .flatMap(function(args) {
-        return wikipathwaysApiClientInstance.getPathway(args, 'observable');
-      });
-    var disposable = RxNode.writeToStream(pathwaySource, process.stdout, 'utf8');
+        return wikipathwaysApiClientInstance.getPathway(args);
+      })
+      .subscribe(
+        function(output) {
+          process.stdout.write(output);
+        },
+        function(err) {
+          console.error(err);
+          process.exit(1);
+        },
+        function() {
+          process.exit(0);
+        }
+      );
   })
-  .on('--help', function() {
-    console.log('  Example:');
+  .on("--help", function() {
+    console.log("  Example:");
     console.log();
-    console.log('    $ ./bin/cli.js get-pathway WP4');
-    console.log('    $ ./bin/cli.js get-pathway WP4,WP5');
-    console.log('    $ ./bin/cli.js get-pathway WP4 --pathway-version 83650');
+    console.log("    $ ./bin/cli.js get-pathway WP4");
+    console.log("    $ ./bin/cli.js get-pathway WP4,WP5");
+    console.log("    $ ./bin/cli.js get-pathway WP4 --pathway-version 83650");
     console.log();
   });
 
 program
-  .command('update-pathway <wikipathways-identifier> <filepath>')
-  .description('Update pathway at WikiPathways.')
-  .option('-v, --pathway-version <number>',
-      'specify pathway version <pathway-version>')
+  .command("get-pathway-info <wikipathways-identifier(s)>")
+  .description(
+    "Get pathway info by WikiPathways identifier(s). " +
+      "If requesting multiple pathways, separate identifiers by commas, e.g., WP4,WP5"
+  )
+  .action(function(identifiers) {
+    Rx.Observable
+      .from(identifiers.split(","))
+      .flatMap(function(identifier) {
+        return wikipathwaysApiClientInstance.getPathwayInfo(identifier);
+      })
+      .subscribe(
+        function(output) {
+          process.stdout.write(JSON.stringify(output));
+        },
+        function(err) {
+          console.error(err);
+          process.exit(1);
+        },
+        function() {
+          process.exit(0);
+        }
+      );
+  })
+  .on("--help", function() {
+    console.log("  Example:");
+    console.log();
+    console.log("    $ ./bin/cli.js get-pathway-info WP4");
+    console.log("    $ ./bin/cli.js get-pathway-info WP4,WP5");
+    console.log();
+  });
+
+program
+  .command("update-pathway <wikipathways-identifier> <filepath>")
+  .description("Update pathway at WikiPathways.")
+  .option(
+    "-v, --pathway-version <number>",
+    "specify pathway version <pathway-version>"
+  )
   .action(function(identifier, filepath, options) {
     var fileFormat = program.fileFormat || defaultMediaType;
     var pathwayVersion = options.pathwayVersion;
 
-    var prompts = [{
-      type: 'input',
-      name: 'description',
-      message: 'Description of changes:'
-    }, {
-      type: 'input',
-      name: 'username',
-      message: 'WikiPathways account username:'
-    }, {
-      type: 'password',
-      name: 'password',
-      message: 'WikiPathways account password:'
-    }];
+    var prompts = [
+      {
+        type: "input",
+        name: "description",
+        message: "Description of changes:"
+      },
+      {
+        type: "input",
+        name: "username",
+        message: "WikiPathways account username:"
+      },
+      {
+        type: "password",
+        name: "password",
+        message: "WikiPathways account password:"
+      }
+    ];
 
-    var responseSource = Rx.Observable.return({}).concat(
-      inquirer.prompt(prompts).process
-    )
-    .reduce(function(accumulator, response) {
-      accumulator[response.name] = response.answer;
-      return accumulator;
-    })
-    .flatMap(function(answers) {
-      return wikipathwaysApiClientInstance.updatePathway({
-        identifier: identifier,
-        version: pathwayVersion,
-        gpml: fs.readFileSync(filepath).toString(),
-        description: answers.description,
-        username: answers.username,
-        password: answers.password
-      });
-    });
+    var serialize = ndjson.serialize();
 
-    var disposable = RxNode.writeToStream(responseSource, process.stdout, 'utf8');
+    Rx.Observable
+      .ask(Rx.Observable.from(prompts), item => [item])
+      .reduce(function(accumulator, response) {
+        var name = response.value.name;
+        accumulator[name] = response.answers[name];
+        return accumulator;
+      }, {})
+      .flatMap(function(answers) {
+        return wikipathwaysApiClientInstance.updatePathway({
+          identifier: identifier,
+          gpml: fs.readFileSync(filepath).toString(),
+          username: answers.username,
+          password: answers.password,
+          description: answers.description
+        });
+      })
+      .throughNodeStream(serialize)
+      .subscribe(
+        function(output) {
+          process.stdout.write(output);
+        },
+        function(err) {
+          console.error(err);
+          process.exit(1);
+        },
+        function() {
+          process.exit(0);
+        }
+      );
   })
-  .on('--help', function() {
-    console.log('  Example:');
+  .on("--help", function() {
+    console.log("  Example:");
     console.log();
-    console.log('    $ ./bin/cli.js update-pathway WP4 ./test.gpml --pathway-version 83656');
+    console.log(
+      "    $ ./bin/cli.js update-pathway WP4 ./test.gpml --pathway-version 83656"
+    );
     console.log();
   });
 
