@@ -8,7 +8,7 @@ var program = require("commander");
 var npmPackage = JSON.parse(
   fs.readFileSync(__dirname + "/../package.json", { encoding: "utf8" })
 );
-const { SUPPORTED, WikipathwaysApiClient } = require("../lib/main");
+const { SUPPORTED, WikipathwaysApiClient } = require("../es5/index");
 
 var wikipathwaysApiClientInstance = new WikipathwaysApiClient();
 
@@ -223,9 +223,7 @@ program
   .on("--help", function() {
     console.log("  Example:");
     console.log();
-    console.log(
-      "    $ ./bin/cli.js update-pathway WP4 ./test.gpml --pathway-version 83656"
-    );
+    console.log("    $ ./bin/cli.js update-pathway WP4 ./test.gpml");
     console.log();
   });
 

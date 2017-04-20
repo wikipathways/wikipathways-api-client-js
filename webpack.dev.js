@@ -1,11 +1,10 @@
 const path = require("path");
-const webpack = require("webpack");
 
 module.exports = {
   entry: "./src/index.ts",
   output: {
     path: path.join(__dirname, "dist"),
-    filename: "bundle.min.js"
+    filename: "bundle.js"
   },
   resolve: {
     extensions: [".webpack.js", ".web.js", ".ts", ".tsx", ".js", ".jsx", "json"]
@@ -21,26 +20,6 @@ module.exports = {
         ]
       }
     ]
-    /*
-    rules: [
-      {
-        enforce: "pre",
-        test: /\.js$/,
-        loader: "source-map-loader"
-      },
-      {
-        enforce: "pre",
-        test: /\.tsx?$/,
-        use: "source-map-loader"
-      }
-    ]
-    //*/
   },
-  devtool: "source-map",
-  plugins: [
-    new webpack.optimize.UglifyJsPlugin({
-      minimize: true,
-      sourceMap: true
-    })
-  ]
+  devtool: "inline-source-map"
 };

@@ -1,1 +1,6 @@
 lib
+es5
+esnext
+dist
+node_modules
+docs

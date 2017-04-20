@@ -1,1 +1,1 @@
-module.exports = require('./lib/main.js');
+es5/index.js

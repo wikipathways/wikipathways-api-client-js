@@ -10,13 +10,7 @@ import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
 import * as URI from 'urijs';
-
-// needed for parsing XML
-import * as sax from 'sax';
-import 'rxjs/add/observable/fromEventPattern';
-import 'rxjs/add/operator/concat';
-import 'rxjs/add/operator/filter';
-import 'rxjs/add/operator/takeUntil';
+import * as XMLResponseParsers from './XMLResponseParsers';
 
 declare global {
   // Augment Node.js `global`
@@ -332,60 +326,19 @@ export class WikipathwaysApiClient {
 				};
 
 				return Observable.ajax(ajaxRequest)
-					.map(function(ajaxResponse) {
-						return ajaxResponse;
-					})
-					.mergeMap(function(ajaxResponse) {
-						const xhr = ajaxResponse.xhr;
-						const strict = true;
-						const saxStream = sax.createStream(strict, {xmlns: true, encoding: 'utf8'});
-
-						function createSaxStreamEventObservable(eventName) {
-							return Observable.fromEventPattern(
-								function addHandler(h) {
-									saxStream.on(eventName, h);
-								},
-								function delHandler() {}
-							);
+					.mergeMap(XMLResponseParsers.updatePathway)
+					.map(function(response) {
+						const {status, statusText, message} = response;
+						let output: any = {
+							status: status,
+							statusText: statusText,
+						};
+						if (status === 200) {
+							output.version = message;
+						} else {
+							output.errorDescription = message;
 						}
-
-						// TODO get the webservice to return JSON so we don't need to parse XML
-						const parsedStream = createSaxStreamEventObservable('opentag')
-							.filter(function(node: any) {
-								return node.name === 'ns1:success' || node.name === 'ns1:failure';
-							})
-							.mergeMap(function(node) {
-								return createSaxStreamEventObservable('text')
-									.takeUntil(
-											createSaxStreamEventObservable('opentag')
-												.concat(
-														createSaxStreamEventObservable('closetag')
-															.filter(function(node: any) {
-																return node.name === 'ns1:success' || node.name === 'ns1:failure';
-															})
-												)
-									);
-							})
-							// TODO why do I need this filter?
-							.filter(x => x !== '\n')
-							.map(function(message) {
-								return {
-									status: xhr.status,
-									statusText: xhr.statusText,
-									message: message,
-								};
-							});
-
-						// NOTE: this kludge was added so that the Observable
-							// could be observed by its subscriber.
-							// It wasn't observed otherwise, probably because
-							// it's hot.
-						setTimeout(function() {
-							saxStream.write(xhr.response);
-							saxStream.end();
-						}, 20);
-
-						return parsedStream;
+						return output;
 					});
 			});
   }

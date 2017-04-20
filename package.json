@@ -1,17 +1,27 @@
 {
   "name": "wikipathways-api-client",
   "version": "1.1.0",
-  "bin": "./bin/cli.js",
   "description": "JS client for the WikiPathways.org webservices API",
-  "main": "wikipathways-api-client.js",
+  "bin": "./bin/cli.js",
+  "main": "dist/wikipathways-api-client.js",
+  "module": "esnext/index.js",
+  "jsnext:main": "esnext/index.js",
+  "typings": "esnext/index.d.ts",
+  "files": [
+    "es5/",
+    "esnext/",
+    "dist/",
+    "bin/"
+  ],
   "scripts": {
-    "build": "webpack --config webpack.config.js",
-    "compile": "tsc --project tsconfig.json",
-    "start:mockserver": "./node_modules/mockserver/bin/mockserver.js -p 4522 -m './test/mockserver-data'",
-    "test": "echo 'add working tests'",
-    "watch": "npm-run-all -p start:mockserver watch:*",
-    "watch:client": "npm-watch",
-    "watch:webpack": "npm run start:webpack"
+    "build": "npm run compile && mkdirp dist && webpack -p --config webpack.config.js",
+    "compile": "npm-run-all -p compile:*",
+    "compile:es5": "mkdirp es5 && tsc --project tsconfig.es5.json",
+    "compile:esnext": "mkdirp esnext && tsc --project tsconfig.esnext.json",
+    "docs": "mkdirp docs && typedoc --out docs/ src/index.ts",
+    "dev": "webpack --config webpack.dev.js --progress --colors --watch",
+    "prepublish": "npm run build",
+    "test": "echo 'add working tests'"
   },
   "browserify": {
     "transform": [
@@ -22,8 +32,14 @@
   "browser": {
     "atob": false,
     "btoa": false,
+    "cheerio": false,
     "commander": false,
-    "inquirer": false
+    "inquirer": false,
+    "jsdom": false,
+    "xhr2": false,
+    "./src/XMLResponseParsers.ts": "./src/XMLResponseParsers.browser.ts",
+    "./es5/XMLResponseParsers.js": "./es5/XMLResponseParsers.browser.js",
+    "./esnext/XMLResponseParsers.js": "./esnext/XMLResponseParsers.browser.js"
   },
   "repository": {
     "type": "git",
@@ -44,9 +60,7 @@
     "@types/lodash": "^4.14.62",
     "JSONStream": "^1.3.1",
     "atob": "^1.1.2",
-    "cheerio": "^0.19.0",
     "colors": "^1.1.2",
-    "hyperquest": "^1.3.0",
     "inquirer": "^0.11.0",
     "lodash": "^4.17.4",
     "ndjson": "^1.5.0",
@@ -56,14 +70,15 @@
     "xhr2": "^0.1.4"
   },
   "devDependencies": {
-    "brfs": "^1.4.3",
     "commander": "~2.3.0",
-    "deglobalify": "^0.2.0",
-    "gulp": "^3.9.0",
+    "gh-pages": "^0.12.0",
     "mkdirp": "^0.5.1",
     "mockserver": "^1.5.2",
+    "npm-run-all": "^4.0.2",
     "shebang-loader": "0.0.1",
+    "source-map-loader": "^0.2.1",
     "ts-loader": "^2.0.3",
+    "typedoc": "^0.5.10",
     "typescript": "^2.2.2",
     "webpack": "^2.4.1"
   },
