@@ -3,8 +3,7 @@
 var colors = require("colors");
 var fs = require("fs");
 var ndjson = require("ndjson");
-//var Rx = require("rx-extra");
-var Rx = require("../../rx-extra/main");
+var Rx = require("rx-extra");
 var program = require("commander");
 var npmPackage = JSON.parse(
   fs.readFileSync(__dirname + "/../package.json", { encoding: "utf8" })

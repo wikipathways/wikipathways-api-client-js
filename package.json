@@ -1,6 +1,6 @@
 {
   "name": "wikipathways-api-client",
-  "version": "1.0.10",
+  "version": "1.1.0",
   "bin": "./bin/cli.js",
   "description": "JS client for the WikiPathways.org webservices API",
   "main": "wikipathways-api-client.js",
@@ -50,7 +50,7 @@
     "inquirer": "^0.11.0",
     "lodash": "^4.17.4",
     "ndjson": "^1.5.0",
-    "rx-extra": "^2.0.4",
+    "rx-extra": "^2.1.0-alpha",
     "sax": "^1.1.1",
     "urijs": "^1.15.x",
     "xhr2": "^0.1.4"
