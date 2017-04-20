@@ -12,8 +12,7 @@ Install via NPM ~~or include `script` tags in your HTML~~:
 
 ~~~
 ```html
-<script src="./dist/wikipathways-api-client-polyfills-1.0.5.bundle.min.js"></script>
-<script src="./dist/wikipathways-api-client.dev.js"></script>
+<script src="http://wikipathways.github.io/1.1.0/dist/bundle.min.js"></script>
 ```
 ~~~
 
