@@ -6,17 +6,15 @@ JS client for WikiPathways.org web services API.
 ## How To Use
 
 ### JS Library
-Install via NPM ~~or include `script` tags in your HTML~~:
+Install via NPM or include `script` tags in your HTML:
 
 `npm install --save wikipathways-api-client`
 
-~~~
 ```html
 <script src="http://wikipathways.github.io/wikipathways-api-client-js/1.1.0/dist/bundle.min.js"></script>
 ```
-~~~
 
-[Read documentation](http://wikipathways.github.io/wikipathways-api-client-js/docs/1.1.0).
+[Read documentation](http://wikipathways.github.io/wikipathways-api-client-js/1.1.0/docs).
 
 ### Command line
 Install: `npm install -g wikipathways-api-client`
