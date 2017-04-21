@@ -2,5 +2,5 @@ lib
 es5
 esnext
 node_modules
-!docs
-!dist
+docs
+dist
