@@ -12,11 +12,11 @@ Install via NPM ~~or include `script` tags in your HTML~~:
 
 ~~~
 ```html
-<script src="http://wikipathways.github.io/1.1.0/dist/bundle.min.js"></script>
+<script src="http://wikipathways.github.io/wikipathways-api-client-js/1.1.0/dist/bundle.min.js"></script>
 ```
 ~~~
 
-[Read documentation](http://wikipathways.github.io/docs/).
+[Read documentation](http://wikipathways.github.io/wikipathways-api-client-js/docs/1.1.0).
 
 ### Command line
 Install: `npm install -g wikipathways-api-client`
