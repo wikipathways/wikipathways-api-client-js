@@ -65,43 +65,35 @@
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
 				<h1 id="wikipathways-api-client-js">wikipathways-api-client-js</h1>
-				<p>JS client for WikiPathways.org web services API. Not all API endpoints are handled yet, so pull requests are welcome!</p>
-				<h2 id="for-developers">For Developers</h2>
-				<p>To start developing</p>
+				<p>JS client for WikiPathways.org web services API. Note that not all API endpoints are handled yet. Pull requests are welcomed.</p>
+				<h2 id="how-to-use">How To Use</h2>
+				<h3 id="js-library-docs-http-wikipathways-github-io-wikipathways-api-client-js-1-1-0-docs-">JS Library (<a href="http://wikipathways.github.io/wikipathways-api-client-js/1.1.0/docs">docs</a>)</h3>
+				<p>Install via NPM:
+				<code>npm install --save wikipathways-api-client</code></p>
+				<p>Or include <code>script</code> tags in your HTML:</p>
+				<pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"http://wikipathways.github.io/wikipathways-api-client-js/1.1.0/dist/bundle.min.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+</code></pre>
+				<h3 id="command-line">Command line</h3>
+				<p>Install: <code>npm install -g wikipathways-api-client</code></p>
+				<p>View options: <code>wikipathways-api-client --help</code></p>
+				<h2 id="contribute-to-development">Contribute to Development</h2>
 				<ul>
 					<li><p>Install <a href="https://nodejs.org/">Node.js</a></p>
 					</li>
-					<li><p>Install gulp globally</p>
-						<pre><code class="lang-bash">npm install -g gulp
-</code></pre>
-					</li>
-					<li>Clone (download) this repo<pre><code class="lang-bash">git <span class="hljs-built_in">clone</span> git@github.com:wikipathways/wikipathways-api-client-js.git
+					<li><p>Clone (download) this repo</p>
+						<pre><code class="lang-bash">git <span class="hljs-built_in">clone</span> https://github.com/wikipathways/wikipathways-api-client-js.git
 <span class="hljs-built_in">cd</span> wikipathways-api-client-js
 </code></pre>
 					</li>
-					<li>Install the dependencies<pre><code class="lang-bash">npm install
+					<li><p>Install the dependencies</p>
+						<pre><code class="lang-bash">npm install
+</code></pre>
+					</li>
+					<li><p>Start dev builder</p>
+						<pre><code class="lang-bash">npm run dev
 </code></pre>
 					</li>
 				</ul>
-				<p>To build a stand-alone, browser-ready bundle for dev testing, install browserify:</p>
-				<pre><code>npm <span class="hljs-keyword">install</span> -g browserify
-</code></pre><p>Then run:</p>
-				<pre><code>browserify ./index<span class="hljs-selector-class">.js</span> -o ./dist/wikipathways-api-client<span class="hljs-selector-class">.dev</span><span class="hljs-selector-class">.js</span>
-</code></pre><p>The output will be located at <code>./dist/wikipathways-api-client.dev.js</code></p>
-				<p>Then you can include that script and the pre-existing polyfills script in your HTML or PHP (update path as required to match where you store the scripts on your server):</p>
-				<pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"./dist/wikipathways-api-client-polyfills-1.0.5.bundle.min.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
-<span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"./dist/wikipathways-api-client.dev.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
-</code></pre>
-				<p>See <code>./test/browser-tests/update-pathway.php</code> for an example.</p>
-				<!--
-TODO The instructions below don't currently work. Get them working again.
-* ~~Start the dev environment, which will compile your code on the fly and open and refresh the test home page:~~
-```bash
-gulp
-```
-
-~~The production-ready, minified code for the browser will be located at [./dist/wikipathways-api-client-1.0.10.bundle.min.js](https://github.com/wikipathways/wikipathways-api-client-js/blob/master/dist/wikipathways-api-client-1.0.10.bundle.min.js). The dev bundle will be an unminified version of the latest code.~~
--->
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
