@@ -21,8 +21,8 @@
     "docs": "mkdirp docs && typedoc --out docs/ src/index.ts --target ES5",
     "gh": "npm-run-all gh:*",
     "gh:disablejekyll": "gh-pages --add -d ./ --src .nojekyll",
-    "gh:demo": "gh-pages --add -d ./demo/ --src 'index.html' --dest `version`",
     "gh:content": "gh-pages -d ./ --src '{README.md,.nojekyll,dist/**/*,docs/**/*}' --dest `version`",
+    "gh:demo": "gh-pages --add -d ./demo/ --src 'index.html' --dest `version`",
     "dev": "webpack --config webpack.dev.js --progress --colors --watch",
     "prepublish": "npm run build && npm run docs && npm run gh",
     "test": "echo 'add working tests'"
