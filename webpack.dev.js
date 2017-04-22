@@ -1,10 +1,12 @@
+//const npmPackage = require("./package.json");
 const path = require("path");
 
 module.exports = {
   entry: "./src/index.ts",
   output: {
     path: path.join(__dirname, "dist"),
-    filename: "bundle.js"
+    filename: "bundle.js",
+    libraryTarget: "umd"
   },
   resolve: {
     extensions: [".webpack.js", ".web.js", ".ts", ".tsx", ".js", ".jsx", "json"]

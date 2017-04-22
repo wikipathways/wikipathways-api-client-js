@@ -9,7 +9,10 @@ export function updatePathway(ajaxResponse: AjaxResponse): Observable<{
 }> {
 	const xhr = ajaxResponse.xhr;
 	const responseXML = xhr.responseXML;
-	const messageNode = responseXML.querySelector('ns1:success') || responseXML.querySelector('ns1:failure');
+
+	// TODO is there a better way to handle namespaces in browser?
+	const messageNode = responseXML.querySelector('success') || responseXML.querySelector('ns1\\:success') ||
+		responseXML.querySelector('failure') || responseXML.querySelector('ns1\\:failure');
 	return Observable.of({
 		status: xhr.status,
 		statusText: xhr.statusText,

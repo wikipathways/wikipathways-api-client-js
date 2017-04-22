@@ -1,4 +1,4 @@
-import * as atob from 'atob';
+import * as atobPolyfill from 'atob';
 import * as mediaTypes from './media-types';
 import { Observable } from 'rxjs/Observable';
 import { AjaxRequest } from  'rxjs/observable/dom/AjaxObservable';
@@ -17,7 +17,7 @@ declare global {
   namespace NodeJS {
     interface Global {
       XMLHttpRequest: XMLHttpRequest;
-			wikipathwaysUsername: string;
+			atob: atobPolyfill;
     }
   }
   // Augment Browser `window`
@@ -26,8 +26,51 @@ declare global {
   //interface WorkerGlobalScope extends NodeJS.Global { }
 }
 
+//// NOTE: it would be almost possible to use a discriminated union like this:
+//export interface UpdatePathwayResponseBodyCommon {
+//	status: number;
+//	statusText: string;
+//};
+//export interface UpdatePathwayResponseBodySuccess extends UpdatePathwayResponseBodyCommon {
+//	status: 200|201;
+//	version: number;
+//};
+//export interface UpdatePathwayResponseBodyFailure extends UpdatePathwayResponseBodyCommon {
+//	status: 400|500;
+//	error: string;
+//};
+//export type UpdatePathwayResponseBody = UpdatePathwayResponseBodySuccess | UpdatePathwayResponseBodyFailure;
+//if (200 <= status && status < 300) {
+//	output.version = parseInt(message);
+//} else {
+//	output.error = message;
+//}
+//// but the code above doesn't work with discriminated unions.
+//// The code below does, but it's not reasonable to specify and
+//// check for every possible status code.
+//if (output.status == 200 || output.status == 201) {
+//	output.version = parseInt(message);
+//} else if (output.status == 400 || output.status == 500) {
+//	output.error = message;
+//}
+//// so we're going to keep it simple and just use an intersection
+export interface UpdatePathwayResponseBodyCommon {
+	status: number;
+	statusText: string;
+};
+export interface UpdatePathwayResponseBodySuccess extends UpdatePathwayResponseBodyCommon {
+	version: number;
+};
+export interface UpdatePathwayResponseBodyFailure extends UpdatePathwayResponseBodyCommon {
+	error: string;
+};
+export type UpdatePathwayResponseBody = UpdatePathwayResponseBodySuccess & UpdatePathwayResponseBodyFailure;
+
 if (!global.hasOwnProperty('XMLHttpRequest')) {
 	global.XMLHttpRequest = require('xhr2');
+}
+if (!global.hasOwnProperty('atob')) {
+	global.atob = atobPolyfill;
 }
 
 var convertObjectToQueryString = function(inputObject) {
@@ -45,66 +88,62 @@ var convertObjectToQueryString = function(inputObject) {
   return str;
 };
 
-export const SUPPORTED = mediaTypes.SUPPORTED;
-
+/**
+ * WikipathwaysApiClient
+ *
+ * @param args
+ */
 export class WikipathwaysApiClient {
 	baseIri: string;
 	timeout: number;
+	SUPPORTED = mediaTypes.SUPPORTED;
 	constructor({baseIri, timeout}: {baseIri?: string, timeout?: number} = {baseIri: null, timeout: 10 * 1000}) {
 		this.timeout = timeout;
 
-		let isBrowserVisitingWikipathwaysTestServer;
-
-		// TODO should we use the code immediately below or
-		// the code further below for setting the baseIRI?
-		/*
-		if (!document.baseURI.match(/wikipathways\.org/)) {
-			throw new Error('Cannot save on a non-WikiPathways server.');
-		}
-
-		baseIri = 'http://webservice.wikipathways.org/';
-		if (!document.baseURI.match(/http:\/\/(www\.)?wikipathways\.org\//)) {
-			// if at a test server like pvjs.wikipathways.org
-			baseIri = window.location.origin + '/webservice/';
-		}
-		//*/
-
-		const isBrowser = (typeof window !== 'undefined' && typeof document !== 'undefined');
-		if (isBrowser) {
-			var hostnameSplit = window.location.hostname.split('wikipathways.org');
-			if (hostnameSplit[0] !== '' &&
-					hostnameSplit[0] !== 'www.' &&
-					hostnameSplit[hostnameSplit.length - 1] === '') {
-				isBrowserVisitingWikipathwaysTestServer = true;
-			}
-			if (!global.wikipathwaysUsername) {
-				console.warn('No wikipathwaysUsername available!');
-			}
-		}
-
 		if (!baseIri) {
-			if (isBrowserVisitingWikipathwaysTestServer) {
-				// TODO what should the permanent IRI be for the test servers?
-				baseIri = window.location.origin + '/wpi/webservicetest/';
-			} else if (isBrowser) {
-				baseIri = window.location.origin + '/wpi/webservicetest/';
-				//baseIri = 'http://webservice.wikipathways.org/'; //this route will lose authentication
+			const isBrowser = (typeof window !== 'undefined' && typeof document !== 'undefined');
+			if (isBrowser) {
+				var hostnameSplit = window.location.hostname.split('wikipathways.org');
+				if (hostnameSplit[hostnameSplit.length - 1] === '') {
+					// user is on wikipathways.org or one of its subdomains
+					baseIri = window.location.origin + '/wpi/webservicetest/';
+					//baseIri = 'http://webservice.wikipathways.org/'; //this route will lose authentication
+
+//					const subdomain = hostnameSplit[0];
+//					if (['','www.'].indexOf(subdomain) > -1) {
+//						// user is one wikipathways.org main site
+//						baseIri = window.location.origin + '/wpi/webservicetest/';
+//						//baseIri = 'http://webservice.wikipathways.org/'; //this route will lose authentication
+//					} else {
+//						// user is on a wikipathways.org subdomain (likely a test server).
+//						// TODO what should the permanent IRI be for the test servers?
+//						baseIri = window.location.origin + '/wpi/webservicetest/';
+//					}
+				} else {
+					baseIri = 'http://webservice.wikipathways.org/';
+				}
 			} else {
-				baseIri = 'http://www.wikipathways.org/wpi/webservicetest/';
-				//baseIri = 'http://webservice.wikipathways.org/'; //this route will lose authentication
+				baseIri = 'http://webservice.wikipathways.org/';
 			}
 		}
 
 		this.baseIri = baseIri;
 	}
 
+  /**
+   * getPathway
+	 * NOTE: this actually corresponds to the webservice method "getPathwayAs"
+   *
+   * @param args
+   * @return An Observable with the requested data.
+   */
   getPathway({identifier, version, fileFormat}: {
 			identifier: string,
-			version?: string|number,
+			version?: number,
 			fileFormat?: string
 	} = {
 		identifier: undefined, version: 0, fileFormat: 'application/ld+json'
-	}) {
+	}): Observable<any> {
 		if (!identifier) {
 			throw new Error('Please provide identifier');
 		}
@@ -263,7 +302,15 @@ export class WikipathwaysApiClient {
 			});
   }
 
-  login({username, password}): Observable<{auth: string}> {
+  /**
+   * login
+   *
+   * @param args If user is visiting a WikiPathways MediaWiki instance via browser and
+	 * 						 is logged in, username and password are optional, because Nuno is
+	 * 						 using cookie-based authentication for the webservice for this case.
+   * @return An Observable with a token that can be used to make protected requests.
+   */
+  login({username, password}: {username: string, password: string}): Observable<string> {
     const iri = URI(this.baseIri)
 			.filename('login')
 			.query({
@@ -291,7 +338,7 @@ export class WikipathwaysApiClient {
 			});
   }
 
-  updatePathway({description, username, password, identifier, gpml}) {
+  updatePathway({description, username, password, identifier, gpml}): Observable<UpdatePathwayResponseBody> {
 		const baseIri = this.baseIri;
 
 		const gpmlHeader = '<?xml version="1.0" encoding="UTF-8"?>';
@@ -309,7 +356,17 @@ export class WikipathwaysApiClient {
 				const ajaxRequest: AjaxRequest = {
 					url: iri.toString(),
 					method: 'POST',
-					responseType: 'xml',
+					// 'document' appears to work in Chrome
+					// and in Node.JS, but
+					// RxJS4 doesn't support 'document', and
+					// RxJS5 doesn't have good documentation
+					// for accepted values here. The value
+					// 'xml' also appeared to work, but there
+					// was a warning saying it wasn't in the
+					// enum of accepted values.
+					// TODO be sure 'document' is correct and
+					// works cross browser.
+					responseType: 'document',
 					timeout: this.timeout,
 					crossDomain: true,
 					headers: {
@@ -318,7 +375,7 @@ export class WikipathwaysApiClient {
 					body: convertObjectToQueryString({
 						pwId: identifier,
 						description: description,
-						revision: pathwayInfo.version.toString(),
+						revision: pathwayInfo.version,
 						gpml: prefixedGpml,
 						username: username,
 						auth: loginResult,
@@ -327,107 +384,21 @@ export class WikipathwaysApiClient {
 
 				return Observable.ajax(ajaxRequest)
 					.mergeMap(XMLResponseParsers.updatePathway)
-					.map(function(response) {
+					.map(function(response): UpdatePathwayResponseBody {
 						const {status, statusText, message} = response;
-						let output: any = {
+						let output = {
 							status: status,
 							statusText: statusText,
-						};
-						if (status === 200) {
-							output.version = message;
+						} as UpdatePathwayResponseBody;
+						const outputStatus = output.status;
+						if (200 <= outputStatus && outputStatus < 300) {
+							output.version = parseInt(message);
 						} else {
-							output.errorDescription = message;
+							output.error = message;
 						}
 						return output;
 					});
 			});
   }
 
-// TODO if you want to use this method, you'll need to move this import out of the class
-//import * as hyperquest from 'hyperquest';
-//  updatePathwayUsingHyperquest({description, username, password, identifier, gpml, version}) {
-//		const baseIri = this.baseIri;
-//
-//		const gpmlHeader = '<?xml version="1.0" encoding="UTF-8"?>';
-//    const prefixedGpml = (gpml.indexOf(gpmlHeader) === 0 ? '' : gpmlHeader).concat(gpml);
-//
-//		return Observable.zip(
-//			this.login({username: username, password: password}),
-//			this.getPathwayInfo(identifier)
-//		)
-//			.mergeMap(function([loginResult, pathwayInfo]) {
-//				var postBody = {
-//					pwId: identifier,
-//					description: description,
-//					revision: (pathwayInfo.version).toString(),
-//					gpml: prefixedGpml,
-//					username: username,
-//					auth: loginResult,
-//				};
-//
-//      var iri = URI(baseIri)
-//				.filename('updatePathway');
-//
-//      var iriString = iri.toString();
-//
-//      // for an example of making a post request with hyperquest, see
-//      // https://github.com/substack/hyperquest/blob/master/test/post_immediate.js
-//      var req = hyperquest.post(iriString);
-//      req.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-//      req.end(convertObjectToQueryString(postBody));
-//
-//      var data = '';
-//      req.on('data', function(buf) {
-//				data += buf;
-//			});
-//			return Observable.bindNodeCallback(function(cb) {
-//				req.on('end', function() {
-//					cb(null, data);
-//				});
-//			})();
-//		});
-//	}
-
-// NOTE: this is only set up to work in the browser with JQuery globally available
-// TODO if you want to use this method, you'll need to move this import out of the class
-//import 'rxjs/add/observable/bindNodeCallback';
-//import 'rxjs/add/observable/fromPromise';
-//  updatePathwayUsingJQuery({description, username, password, identifier, gpml, version}) {
-//		const baseIri = this.baseIri;
-//
-//    var prefixedGpml = '<?xml version="1.0" encoding="UTF-8"?>'.concat(gpml);
-//    //var prefixedGpml = args.gpml;
-//
-//		return this.login({username: username, password: password})
-//			.mergeMap(function(loginResult) {
-//
-//				var postBody = {
-//					pwId: identifier,
-//					description: description,
-//					revision: version,
-//					gpml: prefixedGpml, //new Buffer(prefixedGpml).toString('base64'),
-//					username: username,
-//					auth: loginResult,
-//					//method: 'updatePathway'
-//				};
-//
-//				var iri = URI(baseIri)
-//					.filename('updatePathway');
-//
-//				var iriString = iri.toString();
-//
-//				return Observable.from('wow');
-//
-//				/*
-//				// Alternative jQuery approach
-//				// return promise to editor.js
-//				return Observable.fromPromise(Promise.resolve($.ajax({
-//					url:  baseIri + 'updatePathway', //URI(baseIri+'updatePathway').filename('index.php'),
-//					type: 'post',
-//					format: 'xml',
-//					data: postBody
-//				})));
-//				//*/
-//		});
-//	}
 }
