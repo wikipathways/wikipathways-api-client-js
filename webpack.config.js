@@ -5,7 +5,8 @@ module.exports = {
   entry: "./src/index.ts",
   output: {
     path: path.join(__dirname, "dist"),
-    filename: "bundle.min.js"
+    filename: "bundle.min.js",
+    libraryTarget: "umd"
   },
   resolve: {
     extensions: [".webpack.js", ".web.js", ".ts", ".tsx", ".js", ".jsx", "json"]
@@ -21,7 +22,7 @@ module.exports = {
         ]
       }
     ]
-    /*
+    /* TODO do I need these? Some docs said the rules are needed, but they cause an error.
     rules: [
       {
         enforce: "pre",
