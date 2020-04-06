@@ -107,23 +107,23 @@ export class WikipathwaysApiClient {
 				if (hostnameSplit[hostnameSplit.length - 1] === '') {
 					// user is on wikipathways.org or one of its subdomains
 					baseIri = window.location.origin + '/wpi/webservicetest/';
-					//baseIri = 'http://webservice.wikipathways.org/'; //this route will lose authentication
+					//baseIri = 'https://webservice.wikipathways.org/'; //this route will lose authentication
 
 //					const subdomain = hostnameSplit[0];
 //					if (['','www.'].indexOf(subdomain) > -1) {
 //						// user is one wikipathways.org main site
 //						baseIri = window.location.origin + '/wpi/webservicetest/';
-//						//baseIri = 'http://webservice.wikipathways.org/'; //this route will lose authentication
+//						//baseIri = 'https://webservice.wikipathways.org/'; //this route will lose authentication
 //					} else {
 //						// user is on a wikipathways.org subdomain (likely a test server).
 //						// TODO what should the permanent IRI be for the test servers?
 //						baseIri = window.location.origin + '/wpi/webservicetest/';
 //					}
 				} else {
-					baseIri = 'http://webservice.wikipathways.org/';
+					baseIri = 'https://webservice.wikipathways.org/';
 				}
 			} else {
-				baseIri = 'http://webservice.wikipathways.org/';
+				baseIri = 'https://webservice.wikipathways.org/';
 			}
 		}
 

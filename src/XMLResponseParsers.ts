@@ -62,5 +62,5 @@ export function updatePathway(ajaxResponse: AjaxResponse): Observable<{
 		saxStream.end();
 	}, 20);
 
-	return parsedStream;
+	return parsedStream as any;
 };
